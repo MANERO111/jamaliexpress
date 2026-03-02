@@ -194,7 +194,7 @@ const HygieneShowcase = () => {
         } else {
           setProducts(MOCK_PRODUCTS);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Fetch error for Hygiene, using mocks:', err);
         setProducts(MOCK_PRODUCTS);
       } finally {

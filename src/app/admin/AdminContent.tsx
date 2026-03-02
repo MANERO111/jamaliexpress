@@ -134,7 +134,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       await fetchProducts();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating product:', err);
 
       // Log detailed error for debugging

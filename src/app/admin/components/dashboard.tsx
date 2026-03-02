@@ -161,7 +161,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   const salesDataFull = generateCategorySalesData();
   const currentCategoryData = categoryView === 'stock' ? stockData : salesDataFull;
 
-  const totalValue = currentCategoryData.reduce((sum: number, item: any) => sum + Number(item.value), 0);
+  // define a type describing the items produced by the helper functions
+  type CategoryDataItem = { name: string; value: number; sales?: number; count?: number };
+
+  const totalValue = currentCategoryData.reduce((sum: number, item: CategoryDataItem) => sum + item.value, 0);
 
 
   return (

@@ -504,7 +504,7 @@ const ProductsPage = () => {
                   className="text-[12px] font-light text-[#1a1a2e]/38 mb-6 max-w-xs leading-relaxed"
                   style={{ fontFamily: "'Jost', sans-serif" }}
                 >
-                  Essayez de modifier vos filtres ou d'élargir votre recherche.
+                  Essayez de modifier vos filtres ou d&apos;élargir votre recherche.
                 </p>
                 <button
                   onClick={handleClearFilters}

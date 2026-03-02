@@ -309,7 +309,7 @@ const OrdersPage: React.FC = () => {
               Aucune commande
             </h2>
             <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed text-lg">
-              Vous n'avez pas encore passé de commande. Découvrez notre collection !
+              Vous n&apos;avez pas encore passé de commande. Découvrez notre collection !
             </p>
             <Link
               href="/products"
@@ -454,7 +454,7 @@ const OrdersPage: React.FC = () => {
                         ) : (
                           <div className="bg-gray-50 rounded p-6 text-center text-gray-600">
                             <Package size={32} className="mx-auto mb-3 text-gray-400" />
-                            <p>Aucun détail d'article disponible</p>
+                            <p>Aucun détail d&apos;article disponible</p>
                           </div>
                         )}
                       </div>

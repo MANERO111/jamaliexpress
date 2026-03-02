@@ -43,7 +43,7 @@ export default function HeroSection() {
             {/* Live promo pill */}
             <div className="promo-pill">
               <div className="promo-dot" />
-              <span className="promo-text">Offre spéciale · <strong>Jusqu'à −30%</strong> sur la beauté</span>
+              <span className="promo-text">Offre spéciale · <strong>Jusqu&apos;à −30%</strong> sur la beauté</span>
             </div>
 
             {/* Eyebrow */}
@@ -110,7 +110,7 @@ export default function HeroSection() {
               </div>
               <div>
                 <div className="trust-title">Produits 100% Authentiques</div>
-                <div className="trust-sub">Certifiés & garantis d'origine</div>
+                <div className="trust-sub">Certifiés & garantis d&apos;origine</div>
               </div>
             </div>
 

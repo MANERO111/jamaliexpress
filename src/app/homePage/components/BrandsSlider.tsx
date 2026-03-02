@@ -205,7 +205,7 @@ const BrandsSlider = () => {
               backgroundClip: 'text',
             }}
           >
-            d'exception
+            d&apos;exception
           </em>
         </h2>
 

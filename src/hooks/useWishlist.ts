@@ -38,7 +38,7 @@ export const useWishlist = () => {
     const toggleWishlist = (productId: number) => {
         try {
             const saved = localStorage.getItem('wishlist');
-            let currentWishlist: number[] = saved ? JSON.parse(saved) : [];
+            const currentWishlist: number[] = saved ? JSON.parse(saved) : [];
 
             let newWishlist;
             if (currentWishlist.includes(productId)) {
