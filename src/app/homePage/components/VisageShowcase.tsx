@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
@@ -163,7 +163,7 @@ const MOCK_PRODUCTS: Product[] = [
 const VisageShowcase = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
   
   const { wishlist, toggleWishlist: toggleWishlistHook } = useWishlist();
@@ -194,7 +194,7 @@ const VisageShowcase = () => {
         } else {
           setProducts(MOCK_PRODUCTS);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Fetch error, using mocks:', err);
         setProducts(MOCK_PRODUCTS);
         // We don't set the error state anymore so the component displays mocks instead of an error message

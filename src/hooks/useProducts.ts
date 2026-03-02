@@ -74,9 +74,10 @@ export const useProducts = (): UseProductsReturn => {
                 setProducts(productsData);
                 setCategories(categoriesData);
                 setError(null);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+                const message = err instanceof Error ? err.message : 'Failed to fetch data';
+                setError(message);
             } finally {
                 setLoading(false);
             }

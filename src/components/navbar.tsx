@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, LayoutDashboard, User, Menu, X, ChevronDown, Settings, LogOut, Search, ShoppingBag, Heart, Package, Fullscreen } from 'lucide-react';
+import { LayoutDashboard, User, Menu, X, ChevronDown, Settings, LogOut, Search, ShoppingBag, Heart, Package } from 'lucide-react';
 import LoginModal from './login';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
@@ -90,7 +90,7 @@ const Navbar = () => {
   const toggleSubcategory = (subcategoryName: string) => {
     setActiveSubcategory(activeSubcategory === subcategoryName ? null : subcategoryName);
   };
-  const handleLoginSuccess = async (userData: { name: string; [key: string]: any }) => { await login(userData); setIsLoginModalOpen(false); };
+  const handleLoginSuccess = async (userData: { name: string; [key: string]: unknown }) => { await login(userData); setIsLoginModalOpen(false); };
 
   const navigateToProfile = () => { setIsProfileDropdownOpen(false); window.location.href = '/profile'; };
   const navigateToOrders = () => { setIsProfileDropdownOpen(false); window.location.href = '/orders'; };

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
@@ -63,8 +63,9 @@ const ProductsShowcase = () => {
         }
         
         setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Failed to fetch data';
+        setError(message);
         console.error('Error fetching data:', err);
       } finally {
         setLoading(false);

@@ -8,7 +8,7 @@ import axios from '@/lib/axios';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess?: (user: { name: string; [key: string]: any }) => void;
+  onLoginSuccess?: (user: { name: string; [key: string]: unknown }) => void;
 }
 
 // Define error response type
