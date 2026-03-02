@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { Plus, Tag, Edit, Trash2, ChevronRight, Layers, LayoutGrid } from 'lucide-react';
 
+import { Category, Subcategory, SubSubcategory, Product } from '@/types/admin';
+
 interface CategoriesProps {
-  categories: any[];
-  subCategories: any[];
-  subSubCategories: any[];
-  products?: any[];
-  openModal: (type: string, item?: any) => void;
+  categories: Category[];
+  subCategories: Subcategory[];
+  subSubCategories: SubSubcategory[];
+  products?: Product[];
+  openModal: (type: string, item?: Category | Subcategory | SubSubcategory | Product) => void;
   deleteCategory: (id: number) => Promise<void>;
   deleteSubCategory: (id: number) => Promise<void>;
   deleteSubSubCategory: (id: number) => Promise<void>;

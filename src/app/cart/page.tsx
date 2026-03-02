@@ -8,7 +8,20 @@ import {
 import { getProductImageUrl } from '@/utils/imageHelper';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProducts, Product } from '@/hooks/useProducts';
 import LoginModal from '@/components/login';
+
+interface CartItem {
+  id: number;
+  name: string;
+  brand?: string;
+  original_price: number;
+  discounted_price: number | null;
+  price: number;
+  image_url: string;
+  quantity: number;
+  stock_quantity: number;
+}
 
 const CartPage: React.FC = () => {
   const { cartItems, cartCount, isLoading, updateQuantity, removeFromCart, clearCart, getCartTotal } = useCart();
@@ -210,7 +223,7 @@ const CartPage: React.FC = () => {
 
           {/* ── Cart items ── */}
           <div className="lg:col-span-7 space-y-4">
-            {cartItems.map((item: any, index: number) => {
+            {cartItems.map((item: CartItem, index: number) => {
               const isHovered = hoveredId === item.id;
               const isRemoving = removingId === item.id;
               const isPink = index % 2 === 0;

@@ -8,7 +8,7 @@ import axios from '@/lib/axios';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess?: (user: any) => void;
+  onLoginSuccess?: (user: { name: string; [key: string]: any }) => void;
 }
 
 // Define error response type
@@ -324,7 +324,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
               </>
             ) : (
               <>
-                Vous n'avez pas de compte ?{' '}
+                Vous n&apos;avez pas de compte ?{' '}
                 <button 
                   type="button"
                   onClick={switchMode}

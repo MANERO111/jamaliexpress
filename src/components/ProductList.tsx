@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
+import Image from 'next/image';
+import Axios from 'axios';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
 import { getProductImageUrl } from '@/utils/imageHelper';
@@ -59,8 +61,12 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
         }
 
         setError(null);
-      } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+      } catch (err: unknown) {
+        if (Axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+        } else {
+          setError('Failed to fetch data');
+        }
         console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
@@ -122,12 +128,15 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
                 className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
               >
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                   {product.image_url ? (
-                      <img 
-                        src={getProductImageUrl(product.image_url)} 
-                        alt={product.name}
-                        className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                      />
+                    {product.image_url ? (
+                      <div className="relative w-full h-full p-4 group-hover:scale-105 transition-transform duration-300">
+                        <Image 
+                          src={getProductImageUrl(product.image_url)} 
+                          alt={product.name}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
                         No Image

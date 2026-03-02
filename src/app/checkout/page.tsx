@@ -77,7 +77,7 @@ const Card = ({ children, accent = '#41cdcf' }: { children: React.ReactNode; acc
 );
 
 /* ── Section heading ── */
-const CardTitle = ({ icon: Icon, title, accent = '#41cdcf' }: { icon: any; title: string; accent?: string }) => (
+const CardTitle = ({ icon: Icon, title, accent = '#41cdcf' }: { icon: React.ElementType; title: string; accent?: string }) => (
   <div className="flex items-center gap-3 mb-7">
     <div className="w-8 h-8 flex items-center justify-center flex-shrink-0"
       style={{ background: `rgba(${accent === '#41cdcf' ? '65,205,207' : '245,79,154'},0.1)`, border: `1px solid rgba(${accent === '#41cdcf' ? '65,205,207' : '245,79,154'},0.25)` }}>
@@ -106,7 +106,7 @@ const CheckoutPage: React.FC = () => {
   });
 
   const subtotal = getCartTotal();
-  const shippingCost = 20;
+  const shippingCost: number = 20;
   const tax = subtotal * 0.20;
   const total = subtotal + shippingCost + tax;
 

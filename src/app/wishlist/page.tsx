@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Heart, ShoppingCart, Trash2, ArrowLeft, Sparkles, ArrowRight, X } from 'lucide-react';
-import { Product } from '@/types/admin';
+import { Product } from '@/hooks/useProducts';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getProductImageUrl } from '@/utils/imageHelper';
@@ -22,7 +22,7 @@ const WishlistPage = () => {
 
   const wishlistItems = products.filter(p => wishlist.includes(p.id));
 
-  const handleAddToCart = async (product: any, e: React.MouseEvent) => {
+  const handleAddToCart = async (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (addingToCart[product.id]) return;

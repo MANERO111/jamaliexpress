@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { navigationItems, NavItem } from '@/constants/navigationData';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,8 +74,9 @@ const Navbar = () => {
     try {
       await logout();
       alert('Vous avez été déconnecté avec succès');
-    } catch (error: any) {
-      alert('Erreur lors de la déconnexion: ' + (error.message || 'Erreur inconnue'));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
+      alert('Erreur lors de la déconnexion: ' + message);
     } finally {
       setIsLoggingOut(false);
     }
@@ -88,7 +90,7 @@ const Navbar = () => {
   const toggleSubcategory = (subcategoryName: string) => {
     setActiveSubcategory(activeSubcategory === subcategoryName ? null : subcategoryName);
   };
-  const handleLoginSuccess = async (userData: any) => { await login(userData); setIsLoginModalOpen(false); };
+  const handleLoginSuccess = async (userData: { name: string; [key: string]: any }) => { await login(userData); setIsLoginModalOpen(false); };
 
   const navigateToProfile = () => { setIsProfileDropdownOpen(false); window.location.href = '/profile'; };
   const navigateToOrders = () => { setIsProfileDropdownOpen(false); window.location.href = '/orders'; };
@@ -128,12 +130,9 @@ const Navbar = () => {
 
                 {/* Logo - Center */}
                 <div className="flex-shrink-0 flex justify-center flex-1 lg:flex-initial logo-area">
-                  <a href="/" style={{ textDecoration: 'none' }}>
-                    {/* <span className="logo-main">JAMALI<span className="accent">EXPRESS</span></span>
-                    <span className="logo-sub">Parapharmacie</span>
-                    <span className="logo-tagline">الأسرع • الأرخص • الأفضل</span> */}
+                  <Link href="/" style={{ textDecoration: 'none' }}>
                     <Image src="/img/logo2.png" alt="Logo" width={150} height={150} />
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Actions - Right */}
@@ -206,11 +205,11 @@ const Navbar = () => {
                           className="nav-category-link"
                         >
                           {category.name}
-                          {category.subcategories?.length > 0 && (
+                          {category.subcategories && category.subcategories.length > 0 && (
                             <ChevronDown size={11} className="hidden lg:inline-block opacity-60" />
                           )}
                         </a>
-                        {category.subcategories?.length > 0 && (
+                        {category.subcategories && category.subcategories.length > 0 && (
                           <button
                             onClick={(e) => { e.preventDefault(); toggleCategory(category.name); }}
                             className="lg:hidden px-3 py-2 text-gray-400"
