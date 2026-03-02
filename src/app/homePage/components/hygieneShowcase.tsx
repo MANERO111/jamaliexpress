@@ -39,7 +39,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 150.00,
     discounted_price: 130.00,
     stock_quantity: 40,
-    image_url: "",
+    image_url: "img/products/24.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -55,7 +55,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 180.00,
     discounted_price: null,
     stock_quantity: 50,
-    image_url: "",
+    image_url: "img/products/25.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -71,7 +71,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 145.00,
     discounted_price: 125.00,
     stock_quantity: 30,
-    image_url: "",
+    image_url: "img/products/26.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -87,7 +87,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 90.00,
     discounted_price: null,
     stock_quantity: 60,
-    image_url: "",
+    image_url: "img/products/27.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -103,7 +103,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 165.00,
     discounted_price: 140.00,
     stock_quantity: 25,
-    image_url: "",
+    image_url: "img/products/28.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -119,7 +119,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 195.00,
     discounted_price: 170.00,
     stock_quantity: 20,
-    image_url: "",
+    image_url: "img/products/29.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -135,7 +135,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 135.00,
     discounted_price: null,
     stock_quantity: 35,
-    image_url: "",
+    image_url: "img/products/30.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -151,7 +151,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 115.00,
     discounted_price: 95.00,
     stock_quantity: 15,
-    image_url: "",
+    image_url: "img/products/2.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -503,7 +503,8 @@ const HygieneShowcase = () => {
                         {/* Image area */}
                         <div className="relative h-[280px] overflow-hidden bg-[#f0ede8]">
                           <img
-                            src={getProductImageUrl(product.image_url)}
+                            // src={getProductImageUrl(product.image_url)}
+                            src={product.image_url}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-700"
                             style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)' }}

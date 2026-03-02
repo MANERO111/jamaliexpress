@@ -39,7 +39,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 180.00,
     discounted_price: 155.00,
     stock_quantity: 20,
-    image_url: "",
+    image_url: "img/products/16.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -55,7 +55,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 240.00,
     discounted_price: null,
     stock_quantity: 15,
-    image_url: "", // Fallback to biocol as a generic product image
+    image_url: "img/products/17.png", // Fallback to biocol as a generic product image
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -71,7 +71,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 320.00,
     discounted_price: 280.00,
     stock_quantity: 10,
-    image_url: "",
+    image_url: "img/products/18.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -87,7 +87,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 160.00,
     discounted_price: null,
     stock_quantity: 25,
-    image_url: "",
+    image_url: "img/products/19.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -103,7 +103,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 450.00,
     discounted_price: 390.00,
     stock_quantity: 5,
-    image_url: "",
+    image_url: "img/products/20.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -119,7 +119,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 190.00,
     discounted_price: 165.00,
     stock_quantity: 15,
-    image_url: "",
+    image_url: "img/products/21.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -135,7 +135,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 130.00,
     discounted_price: null,
     stock_quantity: 20,
-    image_url: "",
+    image_url: "img/products/22.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -151,7 +151,7 @@ const MOCK_PRODUCTS: Product[] = [
     original_price: 210.00,
     discounted_price: 185.00,
     stock_quantity: 12,
-    image_url: "",
+    image_url: "img/products/23.jpg",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     category_id: CATEGORY_ID,
@@ -503,7 +503,8 @@ const CapillaireShowcase = () => {
                         {/* Image area */}
                         <div className="relative h-[280px] overflow-hidden bg-[#f0ede8]">
                           <img
-                            src={getProductImageUrl(product.image_url)}
+                            // src={getProductImageUrl(product.image_url)}
+                            src={product.image_url}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-700"
                             style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)' }}
