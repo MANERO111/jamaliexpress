@@ -40,7 +40,7 @@ const CartPage: React.FC = () => {
     else window.location.href = '/checkout';
   };
 
-  const handleLoginSuccess = async (userData: any) => {
+  const handleLoginSuccess = async (userData: unknown) => {
     await login(userData);
     setShowLoginModal(false);
     window.location.href = '/checkout';

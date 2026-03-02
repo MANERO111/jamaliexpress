@@ -1,26 +1,27 @@
 'use client';
 import React from 'react';
-import { X, Save, Upload } from 'lucide-react';
+import { X, Save } from 'lucide-react';
+import { Product, Category, Subcategory, SubSubcategory, User, Order } from '@/types/admin';
 
 interface ModalProps {
   showModal: boolean;
   modalType: string;
-  selectedItem: any;
-  categories: any[];
-  subCategories: any[];
-  subSubCategories: any[];
+  selectedItem: Product | Category | Subcategory | SubSubcategory | User | Order | null;
+  categories: Category[];
+  subCategories: Subcategory[];
+  subSubCategories: SubSubcategory[];
   loading: boolean;
   closeModal: () => void;
-  createProduct: (data: any) => Promise<void>;
-  updateProduct: (id: number, data: any) => Promise<void>;
-  createCategory: (data: any) => Promise<void>;
-  updateCategory: (id: number, data: any) => Promise<void>;
-  createSubCategory: (data: any) => Promise<void>;
-  updateSubCategory: (id: number, data: any) => Promise<void>;
-  createSubSubCategory: (data: any) => Promise<void>;
-  updateSubSubCategory: (id: number, data: any) => Promise<void>;
-  createUser?: (data: any) => Promise<void>;
-  updateUser?: (id: number, data: any) => Promise<void>;
+  createProduct: (data: Product | FormData) => Promise<void>;
+  updateProduct: (id: number, data: Product | FormData) => Promise<void>;
+  createCategory: (data: Partial<Category>) => Promise<void>;
+  updateCategory: (id: number, data: Partial<Category>) => Promise<void>;
+  createSubCategory: (data: Partial<Subcategory>) => Promise<void>;
+  updateSubCategory: (id: number, data: Partial<Subcategory>) => Promise<void>;
+  createSubSubCategory: (data: Partial<SubSubcategory>) => Promise<void>;
+  updateSubSubCategory: (id: number, data: Partial<SubSubcategory>) => Promise<void>;
+  createUser?: (data: Partial<User>) => Promise<void>;
+  updateUser?: (id: number, data: Partial<User>) => Promise<void>;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -43,13 +44,17 @@ const Modal: React.FC<ModalProps> = ({
   createUser,
   updateUser
 }) => {
-  const [selectedCategoryId, setSelectedCategoryId] = React.useState<string>(selectedItem?.category_id?.toString() || '');
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = React.useState<string>(selectedItem?.subcategory_id?.toString() || '');
+  const [selectedCategoryId, setSelectedCategoryId] = React.useState<string>(
+    (selectedItem && 'category_id' in selectedItem ? (selectedItem as any).category_id?.toString() : '') || ''
+  );
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = React.useState<string>(
+    (selectedItem && 'subcategory_id' in selectedItem ? (selectedItem as any).subcategory_id?.toString() : '') || ''
+  );
 
   React.useEffect(() => {
     if (selectedItem) {
-      setSelectedCategoryId(selectedItem.category_id?.toString() || '');
-      setSelectedSubCategoryId(selectedItem.subcategory_id?.toString() || '');
+      setSelectedCategoryId((selectedItem && 'category_id' in selectedItem ? (selectedItem as any).category_id?.toString() : '') || '');
+      setSelectedSubCategoryId((selectedItem && 'subcategory_id' in selectedItem ? (selectedItem as any).subcategory_id?.toString() : '') || '');
     } else {
       setSelectedCategoryId('');
       setSelectedSubCategoryId('');
@@ -59,6 +64,14 @@ const Modal: React.FC<ModalProps> = ({
   if (!showModal) return null;
 
   const isEditing = selectedItem !== null;
+
+  // Narrowed types for better type safety and to avoid lint errors
+  const productItem = modalType === 'product' && selectedItem ? selectedItem as Product : null;
+  const categoryItem = modalType === 'category' && selectedItem ? selectedItem as Category : null;
+  const subCategoryItem = modalType === 'subcategory' && selectedItem ? selectedItem as Subcategory : null;
+  const subSubCategoryItem = modalType === 'sub_subcategory' && selectedItem ? selectedItem as SubSubcategory : null;
+  const userItem = modalType === 'user' && selectedItem ? selectedItem as User : null;
+  const orderItem = modalType === 'order' && selectedItem ? selectedItem as Order : null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -154,7 +167,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="text"
                     name="name"
-                    defaultValue={selectedItem?.name || ''}
+                    defaultValue={productItem?.name || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="Nom du produit"
                     required
@@ -165,7 +178,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="text"
                     name="brand"
-                    defaultValue={selectedItem?.brand || ''}
+                    defaultValue={productItem?.brand || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="Marque du produit"
                   />
@@ -175,7 +188,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="text"
                     name="slug"
-                    defaultValue={selectedItem?.slug || ''}
+                    defaultValue={productItem?.slug || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="produit-slug (URL friendly)"
                     required
@@ -225,7 +238,7 @@ const Modal: React.FC<ModalProps> = ({
                   <select
                     name="sub_subcategory_id"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
-                    defaultValue={selectedItem?.sub_subcategory_id || ''}
+                    defaultValue={productItem?.sub_subcategory_id || ''}
                     disabled={!selectedSubCategoryId}
                   >
                     <option value="">Sélectionner une sous-sous-catégorie</option>
@@ -246,7 +259,7 @@ const Modal: React.FC<ModalProps> = ({
                     type="number"
                     name="original_price"
                     step="0.01"
-                    defaultValue={selectedItem?.original_price || ''}
+                    defaultValue={productItem?.original_price || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="0.00"
                     required
@@ -258,7 +271,7 @@ const Modal: React.FC<ModalProps> = ({
                     type="number"
                     name="discounted_price"
                     step="0.01"
-                    defaultValue={selectedItem?.discounted_price || ''}
+                    defaultValue={productItem?.discounted_price || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="0.00"
                   />
@@ -268,7 +281,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="number"
                     name="stock_quantity"
-                    defaultValue={selectedItem?.stock_quantity || selectedItem?.stock || ''}
+                    defaultValue={productItem?.stock_quantity || (productItem as any)?.stock || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="0"
                     required
@@ -278,7 +291,7 @@ const Modal: React.FC<ModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                   <select
                     name="status"
-                    defaultValue={selectedItem?.status || 'active'}
+                    defaultValue={productItem?.status || 'active'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
                   >
                     <option value="active">Actif</option>
@@ -297,16 +310,16 @@ const Modal: React.FC<ModalProps> = ({
                     accept="image/*"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                   />
-                  {selectedItem?.image_url && (
+                  {productItem?.image_url && (
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <span>Image actuelle:</span>
                       <a
-                        href={selectedItem.image_url}
+                        href={productItem.image_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-red-600 hover:text-red-800 underline"
                       >
-                        Voir l'image
+                        Voir l&apos;image
                       </a>
                     </div>
                   )}
@@ -321,7 +334,7 @@ const Modal: React.FC<ModalProps> = ({
                 <textarea
                   name="description"
                   rows={4}
-                  defaultValue={selectedItem?.description || ''}
+                  defaultValue={productItem?.description || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Description du produit"
                 ></textarea>
@@ -336,7 +349,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="name"
-                  defaultValue={selectedItem?.name || ''}
+                  defaultValue={categoryItem?.name || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Nom de la catégorie"
                   required
@@ -347,7 +360,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="slug"
-                  defaultValue={selectedItem?.slug || ''}
+                  defaultValue={categoryItem?.slug || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="slug-categorie"
                   required
@@ -358,7 +371,7 @@ const Modal: React.FC<ModalProps> = ({
                 <textarea
                   name="description"
                   rows={3}
-                  defaultValue={selectedItem?.description || ''}
+                  defaultValue={productItem?.description || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Description de la catégorie"
                 ></textarea>
@@ -373,7 +386,7 @@ const Modal: React.FC<ModalProps> = ({
                 <select
                   name="category_id"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
-                  defaultValue={selectedItem?.category_id || ''}
+                  defaultValue={subCategoryItem?.category_id || ''}
                   required
                 >
                   <option value="">Sélectionner une catégorie</option>
@@ -387,7 +400,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="name"
-                  defaultValue={selectedItem?.name || ''}
+                  defaultValue={subCategoryItem?.name || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Nom de la sous-catégorie"
                   required
@@ -398,7 +411,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="slug"
-                  defaultValue={selectedItem?.slug || ''}
+                  defaultValue={subCategoryItem?.slug || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="slug-sous-categorie"
                   required
@@ -409,7 +422,7 @@ const Modal: React.FC<ModalProps> = ({
                 <textarea
                   name="description"
                   rows={3}
-                  defaultValue={selectedItem?.description || ''}
+                  defaultValue={productItem?.description || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Description"
                 ></textarea>
@@ -424,7 +437,7 @@ const Modal: React.FC<ModalProps> = ({
                 <select
                   name="subcategory_id"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
-                  defaultValue={selectedItem?.subcategory_id || ''}
+                  defaultValue={subSubCategoryItem?.subcategory_id || ''}
                   required
                 >
                   <option value="">Sélectionner une sous-catégorie</option>
@@ -438,7 +451,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="name"
-                  defaultValue={selectedItem?.name || ''}
+                  defaultValue={subSubCategoryItem?.name || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Nom de la sous-sous-catégorie"
                   required
@@ -449,7 +462,7 @@ const Modal: React.FC<ModalProps> = ({
                 <input
                   type="text"
                   name="slug"
-                  defaultValue={selectedItem?.slug || ''}
+                  defaultValue={subSubCategoryItem?.slug || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="slug-sous-sous-categorie"
                   required
@@ -460,7 +473,7 @@ const Modal: React.FC<ModalProps> = ({
                 <textarea
                   name="description"
                   rows={3}
-                  defaultValue={selectedItem?.description || ''}
+                  defaultValue={productItem?.description || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                   placeholder="Description"
                 ></textarea>
@@ -476,7 +489,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="text"
                     name="name"
-                    defaultValue={selectedItem?.name || ''}
+                    defaultValue={userItem?.name || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="Nom complet de l'utilisateur"
                     required
@@ -487,7 +500,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="email"
                     name="email"
-                    defaultValue={selectedItem?.email || ''}
+                    defaultValue={userItem?.email || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="email@exemple.com"
                     required
@@ -500,7 +513,7 @@ const Modal: React.FC<ModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
                   <select
                     name="role"
-                    defaultValue={selectedItem?.role || 'user'}
+                    defaultValue={userItem?.role || 'user'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
                   >
                     <option value="user">Client</option>
@@ -592,12 +605,12 @@ const Modal: React.FC<ModalProps> = ({
                 <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                   {isEditing ? (
                     <div className="space-y-1">
-                      <p><span className="font-medium">Membre depuis:</span> {new Date(selectedItem?.created_at).toLocaleDateString('fr-FR')}</p>
-                      <p><span className="font-medium">Dernière modification:</span> {new Date(selectedItem?.updated_at).toLocaleDateString('fr-FR')}</p>
-                      <p><span className="font-medium">ID utilisateur:</span> {selectedItem?.id}</p>
+                      <p><span className="font-medium">Membre depuis:</span> {userItem?.created_at ? new Date(userItem.created_at).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                      <p><span className="font-medium">Dernière modification:</span> {userItem?.updated_at ? new Date(userItem.updated_at).toLocaleDateString('fr-FR') : 'N/A'}</p>
+                      <p><span className="font-medium">ID utilisateur:</span> {userItem?.id}</p>
                     </div>
                   ) : (
-                    <p>Un email de bienvenue sera envoyé à l'utilisateur après la création du compte.</p>
+                    <p>Un email de bienvenue sera envoyé à l&apos;utilisateur après la création du compte.</p>
                   )}
                 </div>
               </div>

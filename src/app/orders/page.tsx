@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import axios from '@/lib/axios';
+import Axios from 'axios';
 
 interface OrderItem {
   id: number;
@@ -86,9 +87,12 @@ const OrdersPage: React.FC = () => {
       }
       console.log('Orders data:', ordersData);
       setOrders(Array.isArray(ordersData) ? ordersData : []);
-    } catch (error: any) {
-      console.error('Error fetching orders:', error);
-      setError(error.response?.data?.message || 'Erreur lors du chargement des commandes');
+    } catch (error: unknown) {
+      if (Axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || 'Erreur lors du chargement des commandes');
+      } else {
+        setError('Erreur lors du chargement des commandes');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -96,13 +100,13 @@ const OrdersPage: React.FC = () => {
 
   const parseShippingAddress = (address: string | object) => {
     if (typeof address === 'object' && address !== null) {
-      return address as any;
+      return address as Record<string, string>;
     }
     
     if (typeof address === 'string') {
       try {
         return JSON.parse(address);
-      } catch (e) {
+      } catch {
         // If it's not valid JSON, treat as a simple address string
         return {
           full_name: user?.name || 'N/A',

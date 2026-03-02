@@ -3,13 +3,16 @@ import React, { useState } from 'react';
 import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
 import { getProductImageUrl } from '@/utils/imageHelper';
 
+import { Product, Category, Subcategory, SubSubcategory } from '@/types/admin';
+import Image from 'next/image';
+
 interface ProductsProps {
-  products: any[];
-  categories: any[];
-  subCategories: any[];
-  subSubCategories: any[];
+  products: Product[];
+  categories: Category[];
+  subCategories: Subcategory[];
+  subSubCategories: SubSubcategory[];
   getStatusColor: (status: string) => string;
-  openModal: (type: string, item?: any) => void;
+  openModal: (type: string, item?: Product | Category | Subcategory | SubSubcategory | null) => void;
   deleteProduct: (id: number) => Promise<void>;
 }
 
@@ -26,7 +29,7 @@ const Products: React.FC<ProductsProps> = ({
   const [filterStatus, setFilterStatus] = useState('all');
   const [visibleCount, setVisibleCount] = useState(50);
 
-  const getCategoryPath = (product: any) => {
+  const getCategoryPath = (product: Product) => {
     const cat = categories.find(c => c.id === product.category_id);
     const sub = subCategories.find(s => s.id === product.subcategory_id);
     const subsub = subSubCategories.find(ss => ss.id === product.sub_subcategory_id);
@@ -111,9 +114,11 @@ const Products: React.FC<ProductsProps> = ({
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img
+                      <Image
                         src={getProductImageUrl(product.image_url)}
                         alt={product.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-lg object-cover mr-4"
                       />
                       <div>
@@ -136,7 +141,7 @@ const Products: React.FC<ProductsProps> = ({
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(product.status)}`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(product.status || 'active')}`}>
                       {product.status || 'active'}
                     </span>
                   </td>

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { Heart, ShoppingCart, Trash2, ArrowLeft, Sparkles, ArrowRight, X } from 'lucide-react';
+import { Product } from '@/types/admin';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getProductImageUrl } from '@/utils/imageHelper';
@@ -9,7 +10,7 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { useProducts } from '@/hooks/useProducts';
 
 const WishlistPage = () => {
-  const { addToCart, isLoading: cartLoading } = useCart();
+  const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
   const { products, loading: productsLoading } = useProducts();
 

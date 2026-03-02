@@ -2,11 +2,13 @@
 import React from 'react';
 import { Plus, Users, Shield, UserCheck, UserX, Eye, Edit, Trash2 } from 'lucide-react';
 
+import { User } from '@/types/admin';
+
 interface UsersComponentProps {
-  users: any[];
+  users: User[];
   getStatusColor: (status: string) => string;
-  openModal: (type: string, item?: any) => void;
-  deleteUser: (id: number) => Promise<void>; // Add this line
+  openModal: (type: string, item?: User | null) => void;
+  deleteUser: (id: number) => Promise<void>;
 }
 
 const UsersComponent: React.FC<UsersComponentProps> = ({
@@ -62,7 +64,7 @@ const UsersComponent: React.FC<UsersComponentProps> = ({
                     {user.role || 'customer'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.orders_count || user.orders || 0}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.orders_count || user.orders?.length || 0}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.status || 'active')}`}>
                     {user.status === 'active' ? <UserCheck size={12} className="mr-1" /> : <UserX size={12} className="mr-1" />}

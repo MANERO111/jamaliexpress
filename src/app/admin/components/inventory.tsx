@@ -3,8 +3,10 @@ import React from 'react';
 import { Package, AlertTriangle, XCircle, RefreshCw, Search, Plus } from 'lucide-react';
 import { getProductImageUrl } from '@/utils/imageHelper';
 
+import { Product } from '@/types/admin';
+
 interface InventoryProps {
-  products: any[];
+  products: Product[];
 }
 
 const Inventory: React.FC<InventoryProps> = ({ products }) => {
@@ -25,7 +27,7 @@ const Inventory: React.FC<InventoryProps> = ({ products }) => {
   return (
     <div className="space-y-6 mb-40">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Gestion d'Inventaire</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Gestion d&apos;Inventaire</h2>
         <div className="flex items-center space-x-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -108,7 +110,9 @@ const Inventory: React.FC<InventoryProps> = ({ products }) => {
                         />
                         <div>
                           <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                          <div className="text-xs text-gray-500">{product.category?.name || product.category || 'N/A'}</div>
+                          <div className="text-xs text-gray-500">
+                            {typeof product.category === 'object' ? product.category.name : (product.category || 'N/A')}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -169,7 +173,7 @@ const Inventory: React.FC<InventoryProps> = ({ products }) => {
               onClick={handleLoadMore}
               className="group relative flex items-center gap-3 px-10 py-3.5 bg-white border border-gray-300 rounded-xl shadow-sm hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300"
             >
-              <span className="text-sm font-bold uppercase tracking-wider">Charger plus d'articles</span>
+              <span className="text-sm font-bold uppercase tracking-wider">Charger plus d&apos;articles</span>
               <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
             </button>
           )}

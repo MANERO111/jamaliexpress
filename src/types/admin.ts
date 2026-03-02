@@ -37,6 +37,7 @@ export interface Product {
     original_price?: number | string;
     discounted_price?: number | string | null;
     stock_quantity: number;
+    stock?: number;
     image_url?: string;
     created_at: string;
     updated_at: string;
@@ -57,6 +58,8 @@ export interface User {
     created_at?: string;
     updated_at?: string;
     email_verified_at?: string | null;
+    orders_count?: number;
+    orders?: Order[];
 }
 
 export interface Order {
@@ -77,6 +80,7 @@ export interface Order {
         status?: string;
     };
     items_count?: number;
+    order_items?: OrderItem[];
 }
 
 export interface OrderItem {

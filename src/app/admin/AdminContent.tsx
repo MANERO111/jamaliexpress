@@ -27,8 +27,6 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [selectedItem, setSelectedItem] = useState<Product | Category | Subcategory | SubSubcategory | User | Order | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
 
   // API Functions
   const fetchProducts = async () => {
@@ -112,14 +110,14 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     try {
       setLoading(true);
 
-      let dataToSend: any;
+      let dataToSend: FormData;
 
       if (productData instanceof FormData) {
         dataToSend = productData;
       } else {
         // Create FormData object if we received a plain object
         dataToSend = new FormData();
-        const productObj = productData as Record<string, any>;
+        const productObj = productData as unknown as Record<string, string | Blob>;
         Object.keys(productObj).forEach(key => {
           const val = productObj[key];
           if (val !== null && val !== '' && val !== undefined) {
@@ -154,7 +152,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     try {
       setLoading(true);
 
-      let dataToSend: any;
+      let dataToSend: FormData;
 
       if (productData instanceof FormData) {
         dataToSend = productData;
@@ -166,7 +164,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         // Create FormData object if we received a plain object
         dataToSend = new FormData();
         dataToSend.append('_method', 'PUT');
-        const productObj = productData as Record<string, any>;
+        const productObj = productData as unknown as Record<string, string | Blob>;
         Object.keys(productObj).forEach(key => {
           const val = productObj[key];
           if (val !== null && val !== '' && val !== undefined) {
@@ -184,10 +182,10 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       await fetchProducts();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating product:', err);
 
-      if (err.response) {
+      if (Axios.isAxiosError(err) && err.response) {
         console.error('Error details:', err.response.data);
       }
 
@@ -473,7 +471,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   }, [activeTab]);
 
-  const openModal = (type: string, item: any = null) => {
+  const openModal = (type: string, item: Product | Category | Subcategory | SubSubcategory | User | Order | null = null) => {
     setModalType(type);
     setSelectedItem(item);
     setShowModal(true);
