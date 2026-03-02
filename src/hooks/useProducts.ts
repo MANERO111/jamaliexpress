@@ -12,6 +12,8 @@ export interface Product {
     category_id: number;
     subcategory_id?: number | null;
     sub_subcategory_id?: number | null;
+    price: number;
+    slug: string;
     stock_quantity: number;
     active: boolean;
     created_at: string;

@@ -44,17 +44,23 @@ const Modal: React.FC<ModalProps> = ({
   createUser,
   updateUser
 }) => {
-  const [selectedCategoryId, setSelectedCategoryId] = React.useState<string>(
-    (selectedItem && 'category_id' in selectedItem ? (selectedItem as any).category_id?.toString() : '') || ''
-  );
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = React.useState<string>(
-    (selectedItem && 'subcategory_id' in selectedItem ? (selectedItem as any).subcategory_id?.toString() : '') || ''
-  );
+  const [selectedCategoryId, setSelectedCategoryId] = React.useState<string>(() => {
+    if (!selectedItem) return '';
+    if ('category_id' in selectedItem) return selectedItem.category_id?.toString() || '';
+    return '';
+  });
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = React.useState<string>(() => {
+    if (!selectedItem) return '';
+    if ('subcategory_id' in selectedItem) return selectedItem.subcategory_id?.toString() || '';
+    return '';
+  });
 
   React.useEffect(() => {
     if (selectedItem) {
-      setSelectedCategoryId((selectedItem && 'category_id' in selectedItem ? (selectedItem as any).category_id?.toString() : '') || '');
-      setSelectedSubCategoryId((selectedItem && 'subcategory_id' in selectedItem ? (selectedItem as any).subcategory_id?.toString() : '') || '');
+      const catId = 'category_id' in selectedItem ? selectedItem.category_id?.toString() : '';
+      const subCatId = 'subcategory_id' in selectedItem ? selectedItem.subcategory_id?.toString() : '';
+      setSelectedCategoryId(catId || '');
+      setSelectedSubCategoryId(subCatId || '');
     } else {
       setSelectedCategoryId('');
       setSelectedSubCategoryId('');
@@ -71,7 +77,7 @@ const Modal: React.FC<ModalProps> = ({
   const subCategoryItem = modalType === 'subcategory' && selectedItem ? selectedItem as Subcategory : null;
   const subSubCategoryItem = modalType === 'sub_subcategory' && selectedItem ? selectedItem as SubSubcategory : null;
   const userItem = modalType === 'user' && selectedItem ? selectedItem as User : null;
-  const orderItem = modalType === 'order' && selectedItem ? selectedItem as Order : null;
+  // const orderItem = modalType === 'order' && selectedItem ? selectedItem as Order : null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -281,7 +287,7 @@ const Modal: React.FC<ModalProps> = ({
                   <input
                     type="number"
                     name="stock_quantity"
-                    defaultValue={productItem?.stock_quantity || (productItem as any)?.stock || ''}
+                    defaultValue={productItem?.stock_quantity ?? ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
                     placeholder="0"
                     required

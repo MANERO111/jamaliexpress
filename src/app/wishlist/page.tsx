@@ -29,8 +29,8 @@ const WishlistPage = () => {
     setAddingToCart(prev => ({ ...prev, [product.id]: true }));
     try {
       await addToCart(product, 1);
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      console.error('Error adding to cart:', err);
     } finally {
       setTimeout(() => setAddingToCart(prev => ({ ...prev, [product.id]: false })), 1200);
     }
@@ -198,14 +198,14 @@ const WishlistPage = () => {
             const inCart = !!addingToCart[product.id];
             const col = accent(index);
             const rgb = accentRgb(index);
-            const hasDiscount = (product as any).discounted_price && (product as any).discounted_price > 0 && (product as any).original_price > (product as any).discounted_price;
-            const price = hasDiscount ? (product as any).discounted_price : (product as any).original_price || (product as any).price;
-            const oldPrice = (product as any).original_price;
+            const hasDiscount = !!(product.discounted_price && product.discounted_price > 0 && product.original_price > product.discounted_price);
+            const price = hasDiscount ? product.discounted_price : (product.original_price || product.price);
+            const oldPrice = product.original_price;
 
             return (
               <Link
                 key={product.id}
-                href={`/products/${(product as any).slug || product.id}`}
+                href={`/products/${product.slug || product.id}`}
                 className="relative block select-none"
                 style={{ textDecoration: 'none' }}
                 onMouseEnter={() => setHoveredId(product.id)}
@@ -284,7 +284,7 @@ const WishlistPage = () => {
                     </button>
 
                     {/* Out of stock */}
-                    {(product as any).stock_quantity === 0 && (
+                    {product.stock_quantity === 0 && (
                       <div className="absolute top-3 left-3 px-2 py-1 z-30 text-[9px] font-semibold tracking-[0.15em] uppercase"
                         style={{ background: 'rgba(245,79,154,0.1)', border: '1px solid rgba(245,79,154,0.35)', color: '#f54f9a', fontFamily: "'Jost', sans-serif" }}>
                         Rupture
@@ -294,10 +294,10 @@ const WishlistPage = () => {
 
                   {/* Info */}
                   <div className="p-4 pb-5 flex flex-col flex-grow">
-                    {(product as any).brand && (
+                    {product.brand && (
                       <p className="text-[9.5px] font-semibold tracking-[0.26em] uppercase mb-1.5 transition-colors duration-300"
                         style={{ fontFamily: "'Jost', sans-serif", color: col }}>
-                        {(product as any).brand}
+                        {product.brand}
                       </p>
                     )}
 
@@ -330,23 +330,23 @@ const WishlistPage = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={e => handleAddToCart(product, e)}
-                        disabled={(product as any).stock_quantity === 0 || inCart}
+                        disabled={product.stock_quantity === 0 || inCart}
                         className="flex-1 flex items-center justify-center gap-2 py-[10px] text-[10px] font-semibold tracking-[0.2em] uppercase transition-all duration-300 disabled:cursor-not-allowed"
                         style={{
                           fontFamily: "'Jost', sans-serif",
                           background: inCart
                             ? `rgba(${rgb},0.1)`
-                            : isHovered && (product as any).stock_quantity !== 0
+                            : isHovered && product.stock_quantity !== 0
                             ? `linear-gradient(135deg, ${col}, ${index % 2 === 0 ? '#d4326e' : '#2aabb0'})`
                             : 'rgba(26,26,46,0.04)',
-                          border: `1px solid ${inCart ? `rgba(${rgb},0.4)` : isHovered && (product as any).stock_quantity !== 0 ? 'transparent' : 'rgba(26,26,46,0.1)'}`,
-                          color: inCart ? col : isHovered && (product as any).stock_quantity !== 0 ? '#fff' : (product as any).stock_quantity === 0 ? 'rgba(26,26,46,0.22)' : '#1a1a2e',
-                          boxShadow: isHovered && (product as any).stock_quantity !== 0 && !inCart ? `0 6px 20px rgba(${rgb},0.28)` : 'none',
-                          opacity: (product as any).stock_quantity === 0 ? 0.45 : 1,
+                          border: `1px solid ${inCart ? `rgba(${rgb},0.4)` : isHovered && product.stock_quantity !== 0 ? 'transparent' : 'rgba(26,26,46,0.1)'}`,
+                          color: inCart ? col : isHovered && product.stock_quantity !== 0 ? '#fff' : product.stock_quantity === 0 ? 'rgba(26,26,46,0.22)' : '#1a1a2e',
+                          boxShadow: isHovered && product.stock_quantity !== 0 && !inCart ? `0 6px 20px rgba(${rgb},0.28)` : 'none',
+                          opacity: product.stock_quantity === 0 ? 0.45 : 1,
                         }}>
                         {inCart ? (
                           <><Sparkles size={11} style={{ color: col }} /> Ajouté !</>
-                        ) : (product as any).stock_quantity === 0 ? (
+                        ) : product.stock_quantity === 0 ? (
                           'Indisponible'
                         ) : (
                           <><ShoppingCart size={11} /> Ajouter</>
