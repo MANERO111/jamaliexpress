@@ -1,10 +1,18 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Lock, Eye, EyeOff, Save, Edit3, ArrowLeft } from 'lucide-react';
-import axios from '@/lib/axios';
+import api from '@/lib/axios';
+import axios from 'axios';
+
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  created_at: string;
+}
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -26,7 +34,7 @@ const ProfilePage = () => {
     confirmPassword: ''
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
@@ -36,10 +44,10 @@ const ProfilePage = () => {
   const fetchUserData = async () => {
     try {
       // Remove any authorization headers - we're using cookies only
-      delete axios.defaults.headers.common['Authorization'];
+      delete api.defaults.headers.common['Authorization'];
       
       // Try to get user data using cookies
-      const response = await axios.get('/api/user');
+      const response = await api.get('/api/user');
       
       if (response.data) {
         const userData = response.data;
@@ -49,11 +57,11 @@ const ProfilePage = () => {
           email: userData.email || ''
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to fetch user data:', error);
       
       // If unauthorized, redirect to home (user not logged in)
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      if (axios.isAxiosError(error) && error.response && (error.response.status === 401 || error.response.status === 403)) {
         console.log('User not authenticated, redirecting to home');
         window.location.href = '/';
         return;
@@ -67,7 +75,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handleUpdateProfile = async (e) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
@@ -75,12 +83,12 @@ const ProfilePage = () => {
 
     try {
       // Get CSRF token first (important for POST/PUT requests)
-      await axios.get('/sanctum/csrf-cookie');
+      await api.get('/sanctum/csrf-cookie');
       
       // Wait a moment for cookie to be set
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const response = await axios.put('/api/user/update', formData);
+      const response = await api.put('/api/user/update', formData);
 
       if (response.data) {
         setUser(response.data.user || { ...user, ...formData });
@@ -92,18 +100,18 @@ const ProfilePage = () => {
           setSuccessMessage('');
         }, 3000);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Update failed:', error);
       
       // Handle authentication errors
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      if (axios.isAxiosError(error) && error.response && (error.response.status === 401 || error.response.status === 403)) {
         console.log('Authentication expired, redirecting to home');
         window.location.href = '/';
         return;
       }
       
       // Handle validation errors
-      if (error.response && error.response.data) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
         setErrors(error.response.data.errors || { general: error.response.data.message || 'Erreur lors de la mise à jour' });
       } else {
         setErrors({ general: 'Erreur de connexion' });
@@ -113,7 +121,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handleChangePassword = async (e) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
@@ -134,12 +142,12 @@ const ProfilePage = () => {
 
     try {
       // Get CSRF token first
-      await axios.get('/sanctum/csrf-cookie');
+      await api.get('/sanctum/csrf-cookie');
       
       // Wait a moment for cookie to be set
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const response = await axios.put('/api/user/change-password', {
+      const response = await api.put('/api/user/change-password', {
         current_password: passwordData.currentPassword,
         new_password: passwordData.newPassword,
         new_password_confirmation: passwordData.confirmPassword
@@ -155,18 +163,18 @@ const ProfilePage = () => {
           setSuccessMessage('');
         }, 3000);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Password change failed:', error);
       
       // Handle authentication errors
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      if (axios.isAxiosError(error) && error.response && (error.response.status === 401 || error.response.status === 403)) {
         console.log('Authentication expired, redirecting to home');
         window.location.href = '/';
         return;
       }
       
       // Handle validation errors
-      if (error.response && error.response.data) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
         setErrors(error.response.data.errors || { general: error.response.data.message || 'Erreur lors du changement de mot de passe' });
       } else {
         setErrors({ general: 'Erreur de connexion' });
@@ -176,14 +184,14 @@ const ProfilePage = () => {
     }
   };
 
-  const togglePasswordVisibility = (field) => {
+  const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
     setShowPasswords(prev => ({
       ...prev,
       [field]: !prev[field]
     }));
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -198,7 +206,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handlePasswordInputChange = (e) => {
+  const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({
       ...prev,
@@ -462,7 +470,7 @@ const ProfilePage = () => {
                           onChange={handlePasswordInputChange}
                           className={`w-full pl-10 pr-12 py-3 border border-gray-300 rounded focus:outline-none focus:border-teal-500 transition-all duration-300 text-gray-700 ${errors.newPassword || errors.new_password ? 'border-red-300' : ''}`}
                           required
-                          minLength="8"
+                          minLength={8}
                         />
                         <button
                           type="button"
