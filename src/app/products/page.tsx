@@ -1,12 +1,12 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, ChevronDown, Search, ArrowRight } from 'lucide-react';
 import { useProducts, Product } from '@/hooks/useProducts';
 import ProductFilter from '@/components/products/ProductFilter';
 import ProductGrid from '@/components/products/ProductGrid';
 
-const ProductsPage = () => {
+const ProductsPageContent = () => {
   const searchParams = useSearchParams();
   const { products, categories, loading, error } = useProducts();
 
@@ -588,6 +588,39 @@ const ProductsPage = () => {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
       `}</style>
     </div>
+  );
+};
+
+const ProductsPage = () => {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center pt-32">
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative w-16 h-16">
+              <div
+                className="absolute inset-0 rounded-full animate-ping opacity-20"
+                style={{ background: 'linear-gradient(135deg, #f54f9a, #41cdcf)' }}
+              />
+              <div
+                className="absolute inset-2 rounded-full animate-pulse"
+                style={{ background: 'linear-gradient(135deg, #f54f9a, #41cdcf)' }}
+              />
+            </div>
+            <div className="text-center">
+              <p
+                className="text-[13px] font-light tracking-[0.18em] uppercase text-[#1a1a2e]/40"
+                style={{ fontFamily: "'Jost', sans-serif" }}
+              >
+                Chargement des produits…
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <ProductsPageContent />
+    </Suspense>
   );
 };
 
