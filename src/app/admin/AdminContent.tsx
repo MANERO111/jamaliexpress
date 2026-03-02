@@ -1,5 +1,5 @@
-'use client';
 import React, { useState, useEffect } from 'react';
+import Axios from 'axios';
 import axios from '@/lib/axios';
 import { CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
 
@@ -11,21 +11,22 @@ import Orders from './components/orders';
 import UsersComponent from './components/users';
 import Inventory from './components/inventory';
 import Modal from './components/modal';
+import { Product, Category, Subcategory, SubSubcategory, Order, OrderItem, User } from '@/types/admin';
 
 
 const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [subCategories, setSubCategories] = useState<any[]>([]);
-  const [subSubCategories, setSubSubCategories] = useState<any[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [orderItems, setOrderItems] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
+  const [subSubCategories, setSubSubCategories] = useState<SubSubcategory[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<Product | Category | Subcategory | SubSubcategory | User | Order | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
@@ -107,7 +108,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   };
 
   // Create/Update/Delete Functions
-  const createProduct = async (productData: any) => {
+  const createProduct = async (productData: Product | FormData) => {
     try {
       setLoading(true);
 
@@ -118,9 +119,11 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       } else {
         // Create FormData object if we received a plain object
         dataToSend = new FormData();
-        Object.keys(productData).forEach(key => {
-          if (productData[key] !== null && productData[key] !== '' && productData[key] !== undefined) {
-            dataToSend.append(key, productData[key]);
+        const productObj = productData as Record<string, any>;
+        Object.keys(productObj).forEach(key => {
+          const val = productObj[key];
+          if (val !== null && val !== '' && val !== undefined) {
+            dataToSend.append(key, val);
           }
         });
       }
@@ -137,7 +140,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       console.error('Error creating product:', err);
 
       // Log detailed error for debugging
-      if (err.response) {
+      if (Axios.isAxiosError(err) && err.response) {
         console.error('Error details:', err.response.data);
       }
 
@@ -147,7 +150,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateProduct = async (id: number, productData: any) => {
+  const updateProduct = async (id: number, productData: Product | FormData) => {
     try {
       setLoading(true);
 
@@ -163,9 +166,11 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         // Create FormData object if we received a plain object
         dataToSend = new FormData();
         dataToSend.append('_method', 'PUT');
-        Object.keys(productData).forEach(key => {
-          if (productData[key] !== null && productData[key] !== '' && productData[key] !== undefined) {
-            dataToSend.append(key, productData[key]);
+        const productObj = productData as Record<string, any>;
+        Object.keys(productObj).forEach(key => {
+          const val = productObj[key];
+          if (val !== null && val !== '' && val !== undefined) {
+            dataToSend.append(key, val);
           }
         });
       }
@@ -197,7 +202,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setLoading(true);
       await axios.delete(`/api/products/${id}`);
       await fetchProducts();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting product:', err);
       setError('Failed to delete product');
     } finally {
@@ -205,13 +210,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const createCategory = async (categoryData: any) => {
+  const createCategory = async (categoryData: Partial<Category>) => {
     try {
       setLoading(true);
       await axios.post('/api/categories', categoryData);
       await fetchCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating category:', err);
       setError('Failed to create category');
     } finally {
@@ -219,13 +224,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateCategory = async (id: number, categoryData: any) => {
+  const updateCategory = async (id: number, categoryData: Partial<Category>) => {
     try {
       setLoading(true);
       await axios.put(`/api/categories/${id}`, categoryData);
       await fetchCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating category:', err);
       setError('Failed to update category');
     } finally {
@@ -240,7 +245,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       await fetchCategories();
       await fetchSubCategories();
       await fetchSubSubCategories();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting category:', err);
       setError('Failed to delete category');
     } finally {
@@ -248,13 +253,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const createSubCategory = async (data: any) => {
+  const createSubCategory = async (data: Partial<Subcategory>) => {
     try {
       setLoading(true);
       await axios.post('/api/subcategories', data);
       await fetchSubCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating subcategory:', err);
       setError('Failed to create subcategory');
     } finally {
@@ -262,13 +267,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateSubCategory = async (id: number, data: any) => {
+  const updateSubCategory = async (id: number, data: Partial<Subcategory>) => {
     try {
       setLoading(true);
       await axios.put(`/api/subcategories/${id}`, data);
       await fetchSubCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating subcategory:', err);
       setError('Failed to update subcategory');
     } finally {
@@ -282,7 +287,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       await axios.delete(`/api/subcategories/${id}`);
       await fetchSubCategories();
       await fetchSubSubCategories();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting subcategory:', err);
       setError('Failed to delete subcategory');
     } finally {
@@ -290,13 +295,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const createSubSubCategory = async (data: any) => {
+  const createSubSubCategory = async (data: Partial<SubSubcategory>) => {
     try {
       setLoading(true);
       await axios.post('/api/sub-subcategories', data);
       await fetchSubSubCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating sub-subcategory:', err);
       setError('Failed to create sub-subcategory');
     } finally {
@@ -304,13 +309,13 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateSubSubCategory = async (id: number, data: any) => {
+  const updateSubSubCategory = async (id: number, data: Partial<SubSubcategory>) => {
     try {
       setLoading(true);
       await axios.put(`/api/sub-subcategories/${id}`, data);
       await fetchSubSubCategories();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating sub-subcategory:', err);
       setError('Failed to update sub-subcategory');
     } finally {
@@ -323,7 +328,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setLoading(true);
       await axios.delete(`/api/sub-subcategories/${id}`);
       await fetchSubSubCategories();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting sub-subcategory:', err);
       setError('Failed to delete sub-subcategory');
     } finally {
@@ -331,12 +336,12 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateOrderStatus = async (id: number, orderData: any) => {
+  const updateOrderStatus = async (id: number, orderData: { status: string }) => {
     try {
       setLoading(true);
       await axios.put(`/api/orders/${id}`, orderData);
       await fetchOrders();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating order:', err);
       setError('Failed to update order');
     } finally {
@@ -349,7 +354,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setLoading(true);
       const response = await axios.get('/api/order-items');
       setOrderItems(response.data.data || response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching order items:', err);
       setError('Failed to fetch order items');
     } finally {
@@ -362,7 +367,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setLoading(true);
       await axios.delete(`/api/orders/${id}`);
       await fetchOrders();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting order:', err);
       setError('Failed to delete order');
     } finally {
@@ -370,7 +375,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateUser = async (id: number, userData: any) => {
+  const updateUser = async (id: number, userData: Partial<User> & { password?: string; password_confirmation?: string }) => {
     try {
       setLoading(true);
 
@@ -389,9 +394,9 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
 
       await fetchUsers();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating user:', err);
-      if (err.response) {
+      if (Axios.isAxiosError(err) && err.response) {
         console.error('Error details:', err.response.data);
       }
       setError('Failed to update user');
@@ -400,15 +405,15 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const createUser = async (userData: any) => {
+  const createUser = async (userData: Partial<User>) => {
     try {
       setLoading(true);
       await axios.post('/api/users', userData);
       await fetchUsers();
       closeModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating user:', err);
-      if (err.response) {
+      if (Axios.isAxiosError(err) && err.response) {
         console.error('Error details:', err.response.data);
       }
       setError('Failed to create user');
@@ -422,7 +427,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       setLoading(true);
       await axios.delete(`/api/users/${id}`);
       await fetchUsers();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting user:', err);
       setError('Failed to delete user');
     } finally {
@@ -495,7 +500,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   };
 
   const getStatusIcon = (status: string) => {
-    const icons: { [key: string]: JSX.Element } = {
+    const icons: { [key: string]: React.ReactNode } = {
       pending: <Clock size={16} />,
       shipped: <Truck size={16} />,
       delivered: <CheckCircle size={16} />,

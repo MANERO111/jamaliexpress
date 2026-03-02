@@ -2,23 +2,7 @@
 import React from 'react';
 import { Clock, Truck, CheckCircle, XCircle, Eye, Edit, Trash2 } from 'lucide-react';
 
-interface Order {
-  id: number;
-  user_id: number;
-  total_amount: number;
-  status: 'pending' | 'paid' | 'shipped' | 'cancelled' | 'delivered';
-  payment_method: string;
-  shipping_address: string;
-  placed_at: string;
-  created_at: string;
-  updated_at: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  items_count?: number;
-}
+import { Order } from '@/types/admin';
 
 interface OrdersProps {
   orders: Order[];

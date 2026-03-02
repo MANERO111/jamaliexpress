@@ -10,60 +10,7 @@ import {
 } from 'lucide-react';
 import { getProductImageUrl } from '@/utils/imageHelper';
 
-// Define interfaces for your data structures
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface OrderItem {
-  id: number;
-  order_id: number;
-  product_id: number;
-  quantity: number;
-  price: number;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  price: number;
-  stock_quantity: number;
-  image_url?: string;
-  created_at: string;
-  updated_at: string;
-  category_id: number;
-  category?: Category;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email?: string;
-  role: string;
-  status: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-interface Order {
-  id: number;
-  user_id: number;
-  total_amount: number;
-  status: string;
-  payment_method?: string;
-  shipping_address?: string;
-  placed_at?: string;
-  created_at: string;
-  updated_at: string;
-  user?: User;
-}
+import { Product, Category, User, Order, OrderItem } from '@/types/admin';
 
 interface DashboardProps {
   products: Product[];
@@ -72,7 +19,7 @@ interface DashboardProps {
   categories?: Category[];
   orderItems: OrderItem[];
   getStatusColor: (status: string) => string;
-  getStatusIcon: (status: string) => JSX.Element;
+  getStatusIcon: (status: string) => React.ReactNode;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -130,7 +77,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   
       salesData.push({
         day: dayName,
-        sales: daySales
+        sales: Number(daySales)
       });
     }
   
@@ -195,7 +142,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       if (!product) return;
 
       if (salesStats[product.category_id] !== undefined) {
-        salesStats[product.category_id] += (item.price || 0) * (item.quantity || 0);
+        salesStats[product.category_id] += Number(item.price || 0) * (item.quantity || 0);
       }
     });
 
@@ -214,7 +161,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const salesDataFull = generateCategorySalesData();
   const currentCategoryData = categoryView === 'stock' ? stockData : salesDataFull;
 
-  const totalValue = currentCategoryData.reduce((sum: number, item: any) => sum + item.value, 0);
+  const totalValue = currentCategoryData.reduce((sum: number, item: any) => sum + Number(item.value), 0);
 
 
   return (
@@ -410,7 +357,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">{Math.round(order.total_amount)}DH</p>
+                    <p className="font-semibold text-gray-900">{Math.round(Number(order.total_amount))}DH</p>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                       {getStatusIcon(order.status)}
                       <span className="ml-1">{order.status}</span>

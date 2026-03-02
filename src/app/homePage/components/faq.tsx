@@ -313,7 +313,7 @@ const FAQ = () => {
             className="text-[12.5px] font-light tracking-[0.04em] text-[#1a1a2e]/40"
             style={{ fontFamily: "'Jost', sans-serif" }}
           >
-            Vous n'avez pas trouvé votre réponse ?
+            Vous n&apos;avez pas trouvé votre réponse ?
           </p>
 
           {/* <a
