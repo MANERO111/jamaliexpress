@@ -127,7 +127,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
                 <div className="relative overflow-hidden bg-[#f7f5f2]" style={{ aspectRatio: '1/1' }}>
                   {product.image_url ? (
                     <img
-                      src={getProductImageUrl(product.image_url)}
+                      // src={getProductImageUrl(product.image_url)}
+                      src={product.image_url}
                       alt={product.name}
                       className="w-full h-full object-contain p-4 transition-transform duration-700"
                       style={{ transform: isHovered ? 'scale(1.07)' : 'scale(1)' }}

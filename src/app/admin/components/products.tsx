@@ -27,6 +27,7 @@ const Products: React.FC<ProductsProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [visibleCount, setVisibleCount] = useState(50);
 
   const getCategoryPath = (product: Product) => {
@@ -40,10 +41,16 @@ const Products: React.FC<ProductsProps> = ({
     return path;
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (filterStatus === 'all' || product.status === filterStatus)
-  );
+  const filteredProducts = products.filter(product => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = product.name?.toLowerCase().includes(searchLower) || 
+                          product.brand?.toLowerCase().includes(searchLower) ||
+                          product.id.toString().includes(searchTerm);
+    const matchesStatus = filterStatus === 'all' || product.status === filterStatus;
+    const matchesCategory = filterCategory === 'all' || product.category_id.toString() === filterCategory;
+
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
 
   const displayedProducts = filteredProducts.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProducts.length;
@@ -55,7 +62,7 @@ const Products: React.FC<ProductsProps> = ({
   // Reset visibleCount when filters change
   React.useEffect(() => {
     setVisibleCount(50);
-  }, [searchTerm, filterStatus]);
+  }, [searchTerm, filterStatus, filterCategory]);
 
   return (
     <div className="space-y-6 mb-40">
@@ -79,13 +86,25 @@ const Products: React.FC<ProductsProps> = ({
             placeholder="Rechercher des produits..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
           />
         </div>
         <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="px-4 py-2 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-red-500"
+        >
+          <option value="all">Toutes les catégories</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id.toString()}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+        <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+          className="px-4 py-2 border border-gray-300 text-black rounded-lg focus:ring-2 focus:ring-red-500"
         >
           <option value="all">Tous les statuts</option>
           <option value="active">Actif</option>

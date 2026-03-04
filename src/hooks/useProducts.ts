@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from '@/lib/axios';
+import { FALLBACK_PRODUCTS, FALLBACK_CATEGORIES } from '@/data/mockProducts';
 
 export interface Product {
     id: number;
@@ -71,13 +72,24 @@ export const useProducts = (): UseProductsReturn => {
                 const productsData = productsResponse.data.data || productsResponse.data;
                 const categoriesData = categoriesResponse.data.data || categoriesResponse.data;
 
-                setProducts(productsData);
-                setCategories(categoriesData);
+                if (productsData && productsData.length > 0) {
+                    setProducts(productsData);
+                } else {
+                    setProducts(FALLBACK_PRODUCTS);
+                }
+
+                if (categoriesData && categoriesData.length > 0) {
+                    setCategories(categoriesData);
+                } else {
+                    setCategories(FALLBACK_CATEGORIES);
+                }
+
                 setError(null);
             } catch (err: unknown) {
-                console.error('Error fetching data:', err);
-                const message = err instanceof Error ? err.message : 'Failed to fetch data';
-                setError(message);
+                console.error('Error fetching data, using fallback products instead:', err);
+                setProducts(FALLBACK_PRODUCTS);
+                setCategories(FALLBACK_CATEGORIES);
+                setError(null);
             } finally {
                 setLoading(false);
             }
