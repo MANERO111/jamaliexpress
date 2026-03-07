@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
-import Image from 'next/image';
+import { useProducts, Product as GlobalProduct } from '@/hooks/useProducts';
+import ProductModal from './products/ProductModal';
 import Axios from 'axios';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
@@ -32,6 +33,8 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
+  const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -97,6 +100,11 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
     }
   };
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product as unknown as GlobalProduct);
+    setIsModalOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -127,14 +135,16 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
                 key={product.id} 
                 className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
               >
-                <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                <div 
+                  className="aspect-square bg-gray-100 relative overflow-hidden cursor-pointer"
+                  onClick={() => handleProductClick(product)}
+                >
                     {product.image_url ? (
                       <div className="relative w-full h-full p-4 group-hover:scale-105 transition-transform duration-300">
-                        <Image 
+                        <img 
                           src={getProductImageUrl(product.image_url)} 
                           alt={product.name}
-                          fill
-                          className="object-contain"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                     ) : (
@@ -192,6 +202,11 @@ const ProductList: React.FC<ProductListProps> = ({ categoryName }) => {
           </div>
         )}
       </div>
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

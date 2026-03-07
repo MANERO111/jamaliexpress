@@ -4,7 +4,6 @@ import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
 import { getProductImageUrl } from '@/utils/imageHelper';
 
 import { Product, Category, Subcategory, SubSubcategory } from '@/types/admin';
-import Image from 'next/image';
 
 interface ProductsProps {
   products: Product[];
@@ -133,12 +132,14 @@ const Products: React.FC<ProductsProps> = ({
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Image
+                      <img
                         src={getProductImageUrl(product.image_url)}
                         alt={product.name}
-                        width={48}
-                        height={48}
                         className="w-12 h-12 rounded-lg object-cover mr-4"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400';
+                        }}
                       />
                       <div>
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>

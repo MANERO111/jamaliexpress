@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getProductImageUrl } from '@/utils/imageHelper';
 import { useWishlist } from '@/hooks/useWishlist';
-import { useProducts } from '@/hooks/useProducts';
+import { useProducts, Product as GlobalProduct } from '@/hooks/useProducts';
+import ProductModal from '@/components/products/ProductModal';
 
 const WishlistPage = () => {
   const { addToCart } = useCart();
@@ -18,6 +19,8 @@ const WishlistPage = () => {
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
   const wishlistItems = products.filter(p => wishlist.includes(p.id));
@@ -49,6 +52,13 @@ const WishlistPage = () => {
   const handleClearAll = () => {
     wishlist.forEach(id => toggleWishlist(id));
     setShowClearConfirm(false);
+  };
+  
+  const handleProductClick = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProduct(product as unknown as GlobalProduct);
+    setIsModalOpen(true);
   };
 
   const accent = (i: number) => (i % 2 === 0 ? '#f54f9a' : '#41cdcf');
@@ -203,10 +213,10 @@ const WishlistPage = () => {
             const oldPrice = product.original_price;
 
             return (
-              <Link
+              <div
                 key={product.id}
-                href={`/products/${product.slug || product.id}`}
-                className="relative block select-none"
+                onClick={(e) => handleProductClick(product, e)}
+                className="relative block select-none cursor-pointer"
                 style={{ textDecoration: 'none' }}
                 onMouseEnter={() => setHoveredId(product.id)}
                 onMouseLeave={() => setHoveredId(null)}
@@ -375,11 +385,17 @@ const WishlistPage = () => {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
       </div>
+
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       {/* ── Clear confirm modal ── */}
       {showClearConfirm && (
