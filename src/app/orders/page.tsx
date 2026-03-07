@@ -48,7 +48,7 @@ const OrdersPage: React.FC = () => {
     try {
       setIsLoading(true); setError(null);
       const res = await axios.get('/api/orders');
-      let data = res.data?.orders || res.data?.data || res.data;
+      const data = res.data?.orders || res.data?.data || res.data;
       setOrders(Array.isArray(data) ? data : []);
     } catch (err: unknown) {
       setError(Axios.isAxiosError(err) ? err.response?.data?.message || 'Erreur de chargement' : 'Erreur de chargement');
@@ -207,7 +207,7 @@ const OrdersPage: React.FC = () => {
               <ShoppingBag size={26} style={{ color: 'rgba(26,26,46,0.2)' }} />
             </div>
             <h2 className="text-2xl font-light text-[#1a1a2e] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              Aucune commande pour l'instant
+              Aucune commande pour l&apos;instant
             </h2>
             <p className="text-[12px] font-light text-[#1a1a2e]/38 mb-8 max-w-xs leading-relaxed" style={{ fontFamily: "'Jost', sans-serif" }}>
               Votre historique de commandes apparaîtra ici après votre premier achat.

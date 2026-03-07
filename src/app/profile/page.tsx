@@ -17,7 +17,7 @@ const Field = ({
 }: {
   label: string; name: string; value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean; type?: string; icon: any;
+  disabled?: boolean; type?: string; icon: React.ComponentType<{ size?: number; className?: string }>;
   error?: string; hint?: string; required?: boolean;
   suffix?: React.ReactNode;
 }) => {
@@ -75,7 +75,7 @@ const Card = ({ children, accent = '#41cdcf' }: { children: React.ReactNode; acc
 );
 
 const CardTitle = ({ icon: Icon, title, accent = '#41cdcf', action }: {
-  icon: any; title: string; accent?: string; action?: React.ReactNode;
+  icon: React.ComponentType<{ size?: number; className?: string }>; title: string; accent?: string; action?: React.ReactNode;
 }) => (
   <div className="flex items-center justify-between mb-7">
     <div className="flex items-center gap-3">
