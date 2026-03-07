@@ -5,6 +5,8 @@ import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
 import { getProductImageUrl } from '@/utils/imageHelper';
+import ProductModal from '@/components/products/ProductModal';
+import { Product as GlobalProduct } from '@/hooks/useProducts';
 
 interface Product {
   id: number;
@@ -29,6 +31,8 @@ const ProductsShowcase = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
+  const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Touch/swipe handling
@@ -111,6 +115,13 @@ const ProductsShowcase = () => {
     } finally {
       setAddingToCart(prev => ({ ...prev, [product.id]: false }));
     }
+  };
+
+  const handleProductClick = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProduct(product as unknown as GlobalProduct);
+    setIsModalOpen(true);
   };
 
   // Touch/swipe handlers
@@ -279,9 +290,9 @@ const ProductsShowcase = () => {
                       className="flex-shrink-0 w-64 sm:w-72 bg-transparent flex flex-col items-center text-center relative group"
                       style={{ scrollSnapAlign: 'start' }}
                     >
-                      <Link 
-                        href={`/products?category=${encodeURIComponent(activeCategory)}`}
-                        className="w-full flex flex-col items-center text-center"
+                      <div 
+                        onClick={(e) => handleProductClick(product, e)}
+                        className="w-full flex flex-col items-center text-center cursor-pointer"
                         style={{ textDecoration: 'none' }}
                       >
                         {/* Product Image */}
@@ -337,7 +348,7 @@ const ProductsShowcase = () => {
                             )}
                           </div>
                         </div>
-                      </Link>
+                      </div>
                         
                       {/* Add to Cart Button */}
                       <button 
@@ -399,6 +410,12 @@ const ProductsShowcase = () => {
           overflow: hidden;
         }
       `}</style>
+      {/* Product Modal */}
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

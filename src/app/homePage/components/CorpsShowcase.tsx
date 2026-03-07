@@ -5,6 +5,8 @@ import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
 import { getProductImageUrl } from '@/utils/imageHelper';
+import ProductModal from '@/components/products/ProductModal';
+import { Product as GlobalProduct } from '@/hooks/useProducts';
 
 interface Product {
   id: number;
@@ -164,6 +166,8 @@ const CorpsShowcase = () => {
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
+  const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { wishlist, toggleWishlist: toggleWishlistHook } = useWishlist();
 
@@ -261,6 +265,13 @@ const CorpsShowcase = () => {
     } finally {
        setAddingToCart((p) => ({ ...p, [product.id]: false }));
     }
+  };
+
+  const handleProductClick = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProduct(product as unknown as GlobalProduct);
+    setIsModalOpen(true);
   };
 
   /* ── Wishlist ── */
@@ -453,10 +464,10 @@ const CorpsShowcase = () => {
                   : 0;
 
                 return (
-                  <Link
+                  <div
                     key={product.id}
-                    href={`/products?category=Corps`}
-                    className="flex-shrink-0 w-[230px] group relative block select-none"
+                    onClick={(e) => handleProductClick(product, e)}
+                    className="flex-shrink-0 w-[230px] group relative block select-none cursor-pointer"
                     style={{ textDecoration: 'none' }}
                     onMouseEnter={() => setHoveredId(product.id)}
                     onMouseLeave={() => setHoveredId(null)}
@@ -656,7 +667,7 @@ const CorpsShowcase = () => {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
 
@@ -720,6 +731,13 @@ const CorpsShowcase = () => {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
         .overflow-x-auto::-webkit-scrollbar { display: none; }
       `}</style>
+      
+      {/* Product Modal */}
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 };

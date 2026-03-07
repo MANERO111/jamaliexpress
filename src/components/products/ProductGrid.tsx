@@ -6,6 +6,7 @@ import { Product } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { getProductImageUrl } from '@/utils/imageHelper';
 import { useWishlist } from '@/hooks/useWishlist';
+import ProductModal from '@/components/products/ProductModal';
 
 interface ProductGridProps {
   products: Product[];
@@ -14,6 +15,8 @@ interface ProductGridProps {
 const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
@@ -55,6 +58,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
     toggleWishlist(productId);
   };
 
+  const handleProductClick = (product: Product, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
   // Alternate accent per row-position
   const accent = (i: number) => (i % 2 === 0 ? '#f54f9a' : '#41cdcf');
   const accentRgb = (i: number) => (i % 2 === 0 ? '245,79,154' : '65,205,207');
@@ -82,10 +92,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
           const oldPrice    = formatPrice(product.original_price);
 
           return (
-            <Link
+            <div
               key={product.id}
-              href={`/products/${product.slug || product.id}`}
-              className="relative block select-none group"
+              onClick={(e) => handleProductClick(product, e)}
+              className="relative block select-none group cursor-pointer"
               style={{ textDecoration: 'none' }}
               onMouseEnter={() => setHoveredId(product.id)}
               onMouseLeave={() => setHoveredId(null)}
@@ -326,10 +336,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
                   </button>
                 </div>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
+
+      {/* Product Modal */}
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </>
   );
 };
