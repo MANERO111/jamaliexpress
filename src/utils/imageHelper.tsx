@@ -8,8 +8,8 @@
  * @returns Complete URL to the image or fallback image
  */
 export const getProductImageUrl = (imagePath: string | null | undefined): string => {
-    const STORAGE_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_IMAGE_URL || 'http://localhost:8000/storage/';
-    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+    const STORAGE_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_IMAGE_URL || 'http://95.216.199.94/storage/';
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://95.216.199.94';
     const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400';
   
     // Return fallback if no image path provided
