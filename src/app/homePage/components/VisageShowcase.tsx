@@ -504,8 +504,8 @@ const VisageShowcase = () => {
                           {/* Image area */}
                           <div className="relative h-[280px] overflow-hidden bg-[#f0ede8]">
                             <img
-                              // src={getProductImageUrl(product.image_url)}
-                              src={product.image_url}
+                              src={getProductImageUrl(product.image_url)}
+                              // src={product.image_url}
                               alt={product.name}
                               className="w-full h-full object-cover transition-transform duration-700"
                               style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)' }}

@@ -15,7 +15,6 @@ interface CheckoutForm {
   firstName: string; lastName: string; email: string; phone: string;
   shippingAddress: string; shippingCity: string; shippingPostalCode: string;
   paymentMethod: 'card' | 'cash_on_delivery';
-  cardNumber: string; expiryDate: string; cvv: string; cardName: string;
   orderNotes: string;
 }
 interface CartItem {
@@ -101,12 +100,22 @@ const CheckoutPage: React.FC = () => {
     firstName: '', lastName: '', email: '', phone: '',
     shippingAddress: '', shippingCity: '', shippingPostalCode: '',
     paymentMethod: 'cash_on_delivery',
-    cardNumber: '', expiryDate: '', cvv: '', cardName: '',
     orderNotes: ''
   });
 
   const subtotal = getCartTotal();
-  const shippingCost: number = 20;
+  
+  // Calculate dynamic shipping cost
+  let shippingCost = 35; // Default elsewhere
+  const city = formData.shippingCity.toLowerCase();
+  const address = formData.shippingAddress.toLowerCase();
+  
+  if (address.includes('maarif') || address.includes('bourgogne') || city.includes('maarif') || city.includes('bourgogne')) {
+    shippingCost = 0;
+  } else if (city.includes('casablanca') || city === 'casa') {
+    shippingCost = 20;
+  }
+
   const tax = subtotal * 0.20;
   const total = subtotal + shippingCost + tax;
 
@@ -128,12 +137,6 @@ const CheckoutPage: React.FC = () => {
       if (!formData.shippingCity.trim()) newErrors.shippingCity = 'Ville requise';
       if (!formData.shippingPostalCode.trim()) newErrors.shippingPostalCode = 'Code postal requis';
     }
-    if (step === 2 && formData.paymentMethod === 'card') {
-      if (!formData.cardNumber.trim()) newErrors.cardNumber = 'Numéro requis';
-      if (!formData.expiryDate.trim()) newErrors.expiryDate = 'Date requise';
-      if (!formData.cvv.trim()) newErrors.cvv = 'CVV requis';
-      if (!formData.cardName.trim()) newErrors.cardName = 'Nom requis';
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -141,21 +144,46 @@ const CheckoutPage: React.FC = () => {
   const submitOrder = async () => {
     try {
       if (!isAuthenticated) return false;
+
+      // 1. Create the order in our backend
       const res = await axios.post('/api/orders', {
         shipping_address: {
           full_name: `${formData.firstName} ${formData.lastName}`,
           phone: formData.phone, address: formData.shippingAddress, city: formData.shippingCity,
         },
         payment_method: formData.paymentMethod,
-        ...(formData.paymentMethod === 'card' && {
-          card_number: formData.cardNumber, expiry_date: formData.expiryDate,
-          cvv: formData.cvv, card_name: formData.cardName,
-        }),
         order_notes: formData.orderNotes,
         subtotal, shipping_cost: shippingCost, tax, total,
       });
-      if (res.status === 200 || res.status === 201) { setTimeout(() => clearCart(), 5000); return true; }
-      return false;
+
+      if (res.status !== 200 && res.status !== 201) return false;
+
+      // 2a. Cash on delivery – done
+      if (formData.paymentMethod === 'cash_on_delivery') {
+        setTimeout(() => clearCart(), 5000);
+        return true;
+      }
+
+      // 2b. Card – redirect to CMI
+      const orderId = res.data.order_id;
+      const cmiRes = await axios.post('/api/payment/cmi/initiate', { order_id: orderId });
+      const { gateway_url, params } = cmiRes.data;
+
+      // Build and auto-submit a hidden form to CMI
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = gateway_url;
+      Object.entries(params as Record<string, string>).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+
+      return 'cmi_redirect'; // sentinel – don't advance step locally
     } catch { return false; }
   };
 
@@ -164,9 +192,10 @@ const CheckoutPage: React.FC = () => {
     e.preventDefault();
     if (!validateStep(2)) return;
     setIsProcessing(true);
-    const ok = await submitOrder();
-    if (ok) setCurrentStep(3);
-    setIsProcessing(false);
+    const result = await submitOrder();
+    if (result === true) setCurrentStep(3);
+    // if result === 'cmi_redirect', the page will navigate away – nothing to do
+    if (!result) setIsProcessing(false);
   };
 
   /* ── EMPTY CART ── */
@@ -459,15 +488,27 @@ const CheckoutPage: React.FC = () => {
                       })}
                     </div>
 
-                    {/* Card fields */}
+                    {/* CMI redirect notice */}
                     {formData.paymentMethod === 'card' && (
-                      <div className="mt-6 pt-6 space-y-5"
-                        style={{ borderTop: '1px solid rgba(26,26,46,0.06)' }}>
-                        <Field label="Nom sur la carte" name="cardName" value={formData.cardName} onChange={handleInputChange} error={errors.cardName} placeholder="Prénom Nom" />
-                        <Field label="Numéro de carte" name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} error={errors.cardNumber} placeholder="1234 5678 9012 3456" maxLength={19} />
-                        <div className="grid grid-cols-2 gap-5">
-                          <Field label="Expiration" name="expiryDate" value={formData.expiryDate} onChange={handleInputChange} error={errors.expiryDate} placeholder="MM/AA" maxLength={5} />
-                          <Field label="CVV" name="cvv" value={formData.cvv} onChange={handleInputChange} error={errors.cvv} placeholder="123" maxLength={4} />
+                      <div className="mt-6 pt-6" style={{ borderTop: '1px solid rgba(26,26,46,0.06)' }}>
+                        <div className="p-4 relative overflow-hidden"
+                          style={{ background: 'rgba(245,79,154,0.04)', border: '1px solid rgba(245,79,154,0.2)' }}>
+                          <div className="absolute top-0 left-0 right-0 h-px"
+                            style={{ background: 'linear-gradient(90deg, #f54f9a, transparent)' }} />
+                          <div className="flex items-start gap-3">
+                            <Lock size={16} style={{ color: '#f54f9a', flexShrink: 0, marginTop: 2 }} />
+                            <div>
+                              <p className="text-[12px] font-medium text-[#1a1a2e] mb-1"
+                                style={{ fontFamily: "'Jost', sans-serif" }}>Paiement sécurisé 3D Secure</p>
+                              <p className="text-[11px] font-light leading-relaxed"
+                                style={{ fontFamily: "'Jost', sans-serif", color: 'rgba(26,26,46,0.5)' }}>
+                                Vous serez redirigé vers la plateforme sécurisée{' '}
+                                <strong style={{ color: '#f54f9a' }}>CMI</strong>{' '}
+                                pour saisir vos informations bancaires en toute sécurité.
+                                Visa, Mastercard, CMI acceptés.
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}

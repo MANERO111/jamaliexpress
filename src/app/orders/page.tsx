@@ -2,503 +2,482 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getProductImageUrl } from '@/utils/imageHelper';
-import { 
-  Package, 
-  Clock, 
-  CheckCircle, 
-  Truck, 
-  ArrowLeft, 
-  Eye,
-  Calendar,
-  CreditCard,
-  MapPin,
-  Banknote,
-  RefreshCw,
-  AlertCircle,
-  ShoppingBag
+import {
+  Package, Clock, CheckCircle, Truck, ArrowLeft, Eye, EyeOff,
+  Calendar, CreditCard, MapPin, Banknote, RefreshCw,
+  AlertCircle, ShoppingBag, ArrowRight, Phone, ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import axios from '@/lib/axios';
 import Axios from 'axios';
 
 interface OrderItem {
-  id: number;
-  order_id: number;
-  product_id: number;
-  quantity: number;
-  price: number;
-  created_at: string;
-  updated_at: string;
-  // Product details (if populated)
-  product?: {
-    id: number;
-    name: string;
-    image_url: string;
-    description?: string;
-  };
+  id: number; order_id: number; product_id: number;
+  quantity: number; price: number;
+  created_at: string; updated_at: string;
+  product?: { id: number; name: string; image_url: string; description?: string; };
 }
-
 interface Order {
-  id: number;
-  user_id: number;
-  total_amount: number;
+  id: number; user_id: number; total_amount: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   payment_method: 'card' | 'cash_on_delivery';
-  shipping_address: string | {
-    full_name: string;
-    phone: string;
-    address: string;
-    city: string;
-  };
-  placed_at: string;
-  created_at: string;
-  updated_at: string;
-  // Order items relationship
-  order_items?: OrderItem[];
-  items?: OrderItem[]; // Alternative field name
+  shipping_address: string | { full_name: string; phone: string; address: string; city: string; };
+  placed_at: string; created_at: string; updated_at: string;
+  order_items?: OrderItem[]; items?: OrderItem[];
 }
+
+/* ── Status config ── */
+const STATUS_CONFIG: Record<string, { label: string; color: string; rgb: string; icon: React.ReactNode; step: number }> = {
+  pending:    { label: 'En attente',    color: '#f59e0b', rgb: '245,158,11',  icon: <Clock size={13} />,       step: 1 },
+  processing: { label: 'En traitement', color: '#41cdcf', rgb: '65,205,207',  icon: <RefreshCw size={13} />,   step: 2 },
+  shipped:    { label: 'Expédiée',      color: '#a78bfa', rgb: '167,139,250', icon: <Truck size={13} />,       step: 3 },
+  delivered:  { label: 'Livrée',        color: '#41cdcf', rgb: '65,205,207',  icon: <CheckCircle size={13} />, step: 4 },
+  cancelled:  { label: 'Annulée',       color: '#f54f9a', rgb: '245,79,154',  icon: <AlertCircle size={13} />, step: 0 },
+};
 
 const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated, user } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchOrders();
-    }
-  }, [isAuthenticated]);
+  useEffect(() => { if (isAuthenticated) fetchOrders(); }, [isAuthenticated]);
 
   const fetchOrders = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-      const response = await axios.get('/api/orders');
-      console.log('Orders response:', response.data); // Debug log
-      
-      // Handle different response structures
-      let ordersData = response.data;
-      if (response.data.orders) {
-        ordersData = response.data.orders;
-      } else if (response.data.data) {
-        ordersData = response.data.data;
-      }
-      console.log('Orders data:', ordersData);
-      setOrders(Array.isArray(ordersData) ? ordersData : []);
-    } catch (error: unknown) {
-      if (Axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || 'Erreur lors du chargement des commandes');
-      } else {
-        setError('Erreur lors du chargement des commandes');
-      }
-    } finally {
-      setIsLoading(false);
+      setIsLoading(true); setError(null);
+      const res = await axios.get('/api/orders');
+      let data = res.data?.orders || res.data?.data || res.data;
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err: unknown) {
+      setError(Axios.isAxiosError(err) ? err.response?.data?.message || 'Erreur de chargement' : 'Erreur de chargement');
+    } finally { setIsLoading(false); }
+  };
+
+  const parseAddress = (addr: string | object) => {
+    if (typeof addr === 'object' && addr !== null) return addr as Record<string, string>;
+    if (typeof addr === 'string') {
+      try { return JSON.parse(addr); } catch { return { full_name: user?.name || '', address: addr, city: '', phone: '' }; }
     }
+    return { full_name: '', address: '', city: '', phone: '' };
   };
 
-  const parseShippingAddress = (address: string | object) => {
-    if (typeof address === 'object' && address !== null) {
-      return address as Record<string, string>;
-    }
-    
-    if (typeof address === 'string') {
-      try {
-        return JSON.parse(address);
-      } catch {
-        // If it's not valid JSON, treat as a simple address string
-        return {
-          full_name: user?.name || 'N/A',
-          address: address,
-          city: 'N/A',
-          phone: 'N/A'
-        };
-      }
-    }
-    
-    return {
-      full_name: 'N/A',
-      address: 'N/A',
-      city: 'N/A',
-      phone: 'N/A'
-    };
-  };
+  const getItems = (o: Order): OrderItem[] => o.order_items || o.items || [];
 
-  const getOrderItems = (order: Order): OrderItem[] => {
-    return order.order_items || order.items || [];
-  };
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipped':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered':
-        return 'bg-teal-100 text-teal-800 border-teal-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Clock size={16} />;
-      case 'processing':
-        return <RefreshCw size={16} />;
-      case 'shipped':
-        return <Truck size={16} />;
-      case 'delivered':
-        return <CheckCircle size={16} />;
-      case 'cancelled':
-        return <AlertCircle size={16} />;
-      default:
-        return <Package size={16} />;
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'En attente';
-      case 'processing':
-        return 'En traitement';
-      case 'shipped':
-        return 'Expédiée';
-      case 'delivered':
-        return 'Livrée';
-      case 'cancelled':
-        return 'Annulée';
-      default:
-        return status;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const calculateItemTotal = (item: OrderItem) => {
-    return item.price * item.quantity;
-  };
-
+  /* ── Not authenticated ── */
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-white py-12 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-8">
-            <Package className="text-gray-600" size={48} />
+      <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center pt-32 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#41cdcf]/[0.05] blur-[80px]" />
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-[#f54f9a]/[0.05] blur-[80px]" />
+          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(rgba(26,26,46,0.8) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        </div>
+        <div className="relative z-10 text-center max-w-md">
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-8"
+            style={{ border: '1px solid rgba(65,205,207,0.28)', background: 'rgba(65,205,207,0.05)' }}>
+            <Package size={30} style={{ color: 'rgba(26,26,46,0.2)' }} />
           </div>
-          <h2 className="text-4xl font-light text-gray-900 mb-4">
+          <h2 className="text-3xl font-light text-[#1a1a2e] mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             Connexion requise
           </h2>
-          <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed text-lg">
-            Vous devez être connecté pour voir vos commandes.
+          <p className="text-[12.5px] font-light text-[#1a1a2e]/40 mb-8 leading-[1.8]" style={{ fontFamily: "'Jost', sans-serif" }}>
+            Vous devez être connecté pour consulter vos commandes.
           </p>
-          <Link
-            href="/auth/login"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-teal-500 text-white rounded font-medium hover:bg-teal-600 transition-all duration-300"
-          >
-            Se connecter
+          <Link href="/auth/login"
+            className="inline-flex items-center gap-2 px-7 py-3.5 text-[10.5px] font-semibold tracking-[0.22em] uppercase text-white"
+            style={{ fontFamily: "'Jost', sans-serif", background: 'linear-gradient(135deg, #f54f9a, #d4326e)', textDecoration: 'none', boxShadow: '0 8px 24px rgba(245,79,154,0.28)' }}>
+            Se connecter <ArrowRight size={13} />
           </Link>
         </div>
+        <style>{fonts}</style>
       </div>
     );
   }
 
+  /* ── Loading ── */
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white py-12 px-4 md:px-8 lg:px-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="space-y-6">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm animate-pulse">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="space-y-2">
-                    <div className="h-6 bg-gray-200 rounded w-32"></div>
-                    <div className="h-4 bg-gray-200 rounded w-48"></div>
-                  </div>
-                  <div className="h-8 bg-gray-200 rounded w-20"></div>
+      <div className="min-h-screen bg-[#faf8f5] pt-36 pb-20">
+        <div className="max-w-[960px] mx-auto px-4 md:px-8 lg:px-10 space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white animate-pulse p-6" style={{ border: '1px solid rgba(26,26,46,0.07)' }}>
+              <div className="flex justify-between mb-5">
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-100 rounded w-32" />
+                  <div className="h-3 bg-gray-100 rounded w-48" />
                 </div>
-                <div className="space-y-3">
-                  {[...Array(2)].map((_, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="h-6 w-24 bg-gray-100 rounded" />
               </div>
-            ))}
-          </div>
+              <div className="flex gap-3">
+                {[...Array(3)].map((_, j) => <div key={j} className="w-16 h-16 bg-gray-100" />)}
+              </div>
+            </div>
+          ))}
         </div>
+        <style>{fonts}</style>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white py-12 px-4 md:px-8 lg:px-16 pt-30 pb-80">
-      <div className="max-w-6xl mx-auto relative mt-12">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/products"
-              className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors duration-300 group"
-            >
-              <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform duration-300" />
-              <span className="font-medium">Continuer mes achats</span>
-            </Link>
-          </div>
+    <div className="min-h-screen bg-[#faf8f5] pt-40 pb-24 relative overflow-hidden">
 
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-teal-500 rounded flex items-center justify-center">
-              <Package className="text-white" size={24} />
+      {/* ── Atmosphere ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-[#41cdcf]/[0.04] blur-[100px]" />
+        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] rounded-full bg-[#f54f9a]/[0.04] blur-[90px]" />
+        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(rgba(26,26,46,0.8) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+      </div>
+
+      <div className="relative z-10 max-w-[960px] mx-auto px-4 md:px-8 lg:px-10">
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between mb-12">
+          <Link href="/products"
+            className="flex items-center gap-2 text-[11px] font-medium tracking-[0.12em] uppercase transition-all duration-300 group"
+            style={{ fontFamily: "'Jost', sans-serif", color: 'rgba(26,26,46,0.4)', textDecoration: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#f54f9a')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(26,26,46,0.4)')}>
+            <ArrowLeft size={15} className="transition-transform duration-300 group-hover:-translate-x-1" />
+            Nos produits
+          </Link>
+
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-1">
+              <div className="w-6 h-px bg-gradient-to-r from-transparent to-[#f54f9a]" />
+              <span className="text-[9px] font-semibold tracking-[0.4em] uppercase text-[#1a1a2e]/30"
+                style={{ fontFamily: "'Jost', sans-serif" }}>Mon compte</span>
+              <div className="w-6 h-px bg-gradient-to-l from-transparent to-[#41cdcf]" />
             </div>
-            <div>
-              <h1 className="text-4xl font-light text-gray-900">
-                Mes Commandes
-              </h1>
-              <p className="text-gray-600">
-                {orders.length} commande{orders.length !== 1 ? 's' : ''}
-              </p>
-            </div>
+            <h1 className="text-[28px] md:text-[36px] font-light text-[#1a1a2e]"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              Mes{' '}
+              <em className="not-italic" style={{ background: 'linear-gradient(110deg, #f54f9a, #41cdcf)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                commandes
+              </em>
+            </h1>
           </div>
+          <div className="w-[110px]" />
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="text-red-600" size={24} />
-              <div>
-                <h3 className="font-semibold text-red-800">Erreur</h3>
-                <p className="text-red-700">{error}</p>
-              </div>
-            </div>
-            <button
-              onClick={fetchOrders}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300"
-            >
-              Réessayer
-            </button>
+        {/* ── Count label ── */}
+        {orders.length > 0 && (
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-9 h-px bg-gradient-to-r from-[#f54f9a] to-transparent" />
+            <span className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#1a1a2e]/38"
+              style={{ fontFamily: "'Jost', sans-serif" }}>
+              {orders.length} commande{orders.length !== 1 ? 's' : ''}
+            </span>
           </div>
         )}
 
-        {orders.length === 0 && !error ? (
-          /* Empty Orders */
-          <div className="text-center py-20">
-            <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-8">
-              <ShoppingBag className="text-gray-600" size={48} />
+        {/* ── Error ── */}
+        {error && (
+          <div className="relative overflow-hidden mb-8 p-5"
+            style={{ background: 'rgba(245,79,154,0.04)', border: '1px solid rgba(245,79,154,0.25)' }}>
+            <div className="absolute top-0 left-0 right-0 h-[1.5px]" style={{ background: 'linear-gradient(90deg, #f54f9a, transparent)' }} />
+            <div className="flex items-start gap-3">
+              <AlertCircle size={18} style={{ color: '#f54f9a', flexShrink: 0, marginTop: 1 }} />
+              <div className="flex-1">
+                <p className="text-[12px] font-medium text-[#1a1a2e] mb-1" style={{ fontFamily: "'Jost', sans-serif" }}>
+                  Erreur de chargement
+                </p>
+                <p className="text-[11px] font-light text-[#1a1a2e]/50" style={{ fontFamily: "'Jost', sans-serif" }}>{error}</p>
+              </div>
+              <button onClick={fetchOrders}
+                className="flex items-center gap-1.5 px-4 py-2 text-[10px] font-semibold tracking-[0.14em] uppercase text-white transition-all duration-300"
+                style={{ fontFamily: "'Jost', sans-serif", background: 'linear-gradient(135deg, #f54f9a, #d4326e)', border: 'none', cursor: 'pointer' }}>
+                <RefreshCw size={11} /> Réessayer
+              </button>
             </div>
-            <h2 className="text-4xl font-light text-gray-900 mb-4">
-              Aucune commande
+          </div>
+        )}
+
+        {/* ── Empty ── */}
+        {orders.length === 0 && !error && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-16 h-16 flex items-center justify-center mb-7"
+              style={{ border: '1px solid rgba(65,205,207,0.25)', background: 'rgba(65,205,207,0.05)' }}>
+              <ShoppingBag size={26} style={{ color: 'rgba(26,26,46,0.2)' }} />
+            </div>
+            <h2 className="text-2xl font-light text-[#1a1a2e] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              Aucune commande pour l'instant
             </h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed text-lg">
-              Vous n&apos;avez pas encore passé de commande. Découvrez notre collection !
+            <p className="text-[12px] font-light text-[#1a1a2e]/38 mb-8 max-w-xs leading-relaxed" style={{ fontFamily: "'Jost', sans-serif" }}>
+              Votre historique de commandes apparaîtra ici après votre premier achat.
             </p>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-teal-500 text-white rounded font-medium hover:bg-teal-600 transition-all duration-300"
-            >
-              <Package size={20} />
-              Découvrir nos produits
+            <Link href="/products"
+              className="inline-flex items-center gap-2 px-7 py-3.5 text-[10.5px] font-semibold tracking-[0.22em] uppercase text-white"
+              style={{ fontFamily: "'Jost', sans-serif", background: 'linear-gradient(135deg, #f54f9a, #d4326e)', textDecoration: 'none', boxShadow: '0 8px 24px rgba(245,79,154,0.28)' }}>
+              Découvrir nos produits <ArrowRight size={13} />
             </Link>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {orders.map((order) => {
-              const orderItems = getOrderItems(order);
-              const shippingAddress = parseShippingAddress(order.shipping_address);
-              
-              return (
-                <div key={order.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300">
-                  {/* Order Header */}
-                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                    <div className="space-y-2 mb-4 md:mb-0">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-xl font-medium text-gray-900">
-                          Commande #{order.id}
-                        </h3>
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(order.status)}`}>
-                          {getStatusIcon(order.status)}
-                          {getStatusText(order.status)}
+        )}
+
+        {/* ── Orders list ── */}
+        <div className="space-y-5">
+          {orders.map((order, oIdx) => {
+            const items = getItems(order);
+            const address = parseAddress(order.shipping_address);
+            const isExpanded = expandedId === order.id;
+            const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
+            const isPink = oIdx % 2 === 0;
+            const cardCol = isPink ? '#f54f9a' : '#41cdcf';
+            const cardRgb = isPink ? '245,79,154' : '65,205,207';
+
+            return (
+              <div key={order.id}
+                className="relative overflow-hidden bg-white transition-all duration-400"
+                style={{
+                  border: `1px solid ${isExpanded ? `rgba(${cardRgb},0.28)` : 'rgba(26,26,46,0.08)'}`,
+                  boxShadow: isExpanded ? `0 16px 48px rgba(${cardRgb},0.1), 0 4px 12px rgba(0,0,0,0.04)` : '0 2px 8px rgba(0,0,0,0.03)',
+                }}>
+
+                {/* Card top accent */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] transition-opacity duration-400"
+                  style={{ background: `linear-gradient(90deg, ${cardCol}, transparent)`, opacity: isExpanded ? 1 : 0 }} />
+
+                {/* ── Order header row ── */}
+                <div className="p-5 md:p-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+                    {/* Left: ID + meta */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <span className="text-[10px] font-semibold tracking-[0.24em] uppercase text-[#1a1a2e]/35"
+                          style={{ fontFamily: "'Jost', sans-serif" }}>
+                          Commande
+                        </span>
+                        <span className="text-[16px] font-light text-[#1a1a2e]"
+                          style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          #{String(order.id).padStart(5, '0')}
+                        </span>
+
+                        {/* Status badge */}
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[9.5px] font-semibold tracking-[0.14em] uppercase"
+                          style={{
+                            fontFamily: "'Jost', sans-serif",
+                            background: `rgba(${cfg.rgb},0.1)`,
+                            border: `1px solid rgba(${cfg.rgb},0.3)`,
+                            color: cfg.color,
+                          }}>
+                          {cfg.icon} {cfg.label}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={16} />
+
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <span className="flex items-center gap-1.5 text-[11px] font-light text-[#1a1a2e]/40"
+                          style={{ fontFamily: "'Jost', sans-serif" }}>
+                          <Calendar size={12} style={{ color: cardCol }} />
                           {formatDate(order.placed_at || order.created_at)}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {order.payment_method === 'card' ? <CreditCard size={16} /> : <Banknote size={16} />}
-                          {order.payment_method === 'card' ? 'Carte bancaire' : 'Paiement à la livraison'}
-                        </div>
+                        </span>
+                        <span className="flex items-center gap-1.5 text-[11px] font-light text-[#1a1a2e]/40"
+                          style={{ fontFamily: "'Jost', sans-serif" }}>
+                          {order.payment_method === 'card'
+                            ? <CreditCard size={12} style={{ color: cardCol }} />
+                            : <Banknote size={12} style={{ color: cardCol }} />}
+                          {order.payment_method === 'card' ? 'Carte bancaire' : 'À la livraison'}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Right: total + toggle */}
+                    <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <div className="text-2xl font-medium text-gray-900">
-                          {Number(order.total_amount).toFixed(2)} DH
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {orderItems.length} article{orderItems.length !== 1 ? 's' : ''}
-                        </div>
+                        <p className="text-[22px] font-light text-[#1a1a2e]"
+                          style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          {Number(order.total_amount).toFixed(2)}{' '}
+                          <span style={{ fontSize: '13px' }}>د.م</span>
+                        </p>
+                        <p className="text-[10px] font-light text-[#1a1a2e]/35"
+                          style={{ fontFamily: "'Jost', sans-serif" }}>
+                          {items.length} article{items.length !== 1 ? 's' : ''}
+                        </p>
                       </div>
                       <button
-                        onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
-                        className="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-50 rounded transition-all duration-300"
-                        title="Voir les détails"
-                      >
-                        <Eye size={20} />
+                        onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                        className="w-9 h-9 flex items-center justify-center transition-all duration-300"
+                        style={{
+                          border: `1px solid ${isExpanded ? `rgba(${cardRgb},0.3)` : 'rgba(26,26,46,0.1)'}`,
+                          background: isExpanded ? `rgba(${cardRgb},0.08)` : 'transparent',
+                          color: isExpanded ? cardCol : 'rgba(26,26,46,0.35)',
+                        }}>
+                        <ChevronDown size={15}
+                          style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.35s' }} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Order Items Preview */}
-                  {orderItems.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                      {orderItems.slice(0, 4).map((item) => (
-                        <div key={item.id} className="flex items-center gap-2 bg-gray-50 rounded p-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
-                            {item.product?.image_url ? (
-                              <img
-                                src={getProductImageUrl(item.product.image_url)}
-                                alt={item.product?.name || 'Produit'}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Package size={16} className="text-gray-500" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-gray-900 truncate">
-                              {item.product?.name || `Produit #${item.product_id}`}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              x{item.quantity} - {Number(item.price).toFixed(2)} DH
-                            </p>
-                          </div>
+                  {/* ── Item thumbnails preview ── */}
+                  {items.length > 0 && (
+                    <div className="flex gap-2 mt-4 flex-wrap">
+                      {items.slice(0, 5).map(item => (
+                        <div key={item.id}
+                          className="w-12 h-12 overflow-hidden flex-shrink-0 bg-[#f7f5f2] relative"
+                          style={{ border: '1px solid rgba(26,26,46,0.07)' }}>
+                          {item.product?.image_url ? (
+                            <img src={getProductImageUrl(item.product.image_url)} alt={item.product?.name}
+                              className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package size={14} style={{ color: 'rgba(26,26,46,0.2)' }} />
+                            </div>
+                          )}
+                          {item.quantity > 1 && (
+                            <div className="absolute bottom-0 right-0 w-4 h-4 flex items-center justify-center text-[8px] font-bold text-white"
+                              style={{ background: cardCol }}>
+                              {item.quantity}
+                            </div>
+                          )}
                         </div>
                       ))}
-                      {orderItems.length > 4 && (
-                        <div className="flex items-center justify-center bg-gray-100 rounded p-3">
-                          <span className="text-sm font-medium text-gray-700">
-                            +{orderItems.length - 4} autres
+                      {items.length > 5 && (
+                        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0"
+                          style={{ border: '1px solid rgba(26,26,46,0.07)', background: 'rgba(26,26,46,0.03)' }}>
+                          <span className="text-[10px] font-semibold text-[#1a1a2e]/35"
+                            style={{ fontFamily: "'Jost', sans-serif" }}>
+                            +{items.length - 5}
                           </span>
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="bg-gray-50 rounded p-4 text-center text-gray-600">
-                      <Package size={24} className="mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm">Articles non disponibles</p>
-                    </div>
-                  )}
-
-                  {/* Expanded Order Details */}
-                  {selectedOrder?.id === order.id && (
-                    <div className="border-t border-gray-200 pt-6 mt-6 space-y-6">
-                      {/* Detailed Items */}
-                      <div>
-                        <h4 className="text-lg font-medium text-gray-900 mb-4">Articles commandés</h4>
-                        {orderItems.length > 0 ? (
-                          <div className="space-y-3">
-                            {orderItems.map((item) => (
-                              <div key={item.id} className="flex gap-4 p-4 bg-gray-50 rounded">
-                                <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
-                                  {item.product?.image_url ? (
-                                    <img
-                                      src={getProductImageUrl(item.product.image_url)}
-                                      alt={item.product?.name || 'Produit'}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <Package size={24} className="text-gray-500" />
-                                  )}
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-gray-900">
-                                    {item.product?.name || `Produit #${item.product_id}`}
-                                  </h5>
-                                  <div className="flex items-center justify-between mt-2">
-                                    <span className="text-gray-600">Quantité: {item.quantity}</span>
-                                    <div className="text-right">
-                                      <div className="text-gray-900 font-medium">
-                                        {calculateItemTotal(item).toFixed(2)} DH
-                                      </div>
-                                      <div className="text-sm text-gray-600">
-                                        {Number(item.price).toFixed(2)} DH / unité
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="bg-gray-50 rounded p-6 text-center text-gray-600">
-                            <Package size={32} className="mx-auto mb-3 text-gray-400" />
-                            <p>Aucun détail d&apos;article disponible</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Shipping Address */}
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <MapPin size={20} />
-                            Adresse de livraison
-                          </h4>
-                          <div className="bg-gray-50 rounded p-4">
-                            <div className="space-y-1 text-gray-700">
-                              <p className="font-medium">{shippingAddress.full_name}</p>
-                              <p>{shippingAddress.address}</p>
-                              {shippingAddress.city !== 'N/A' && <p>{shippingAddress.city}</p>}
-                              {shippingAddress.phone !== 'N/A' && <p>Tél: {shippingAddress.phone}</p>}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Order Summary */}
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4">Récapitulatif</h4>
-                          <div className="bg-gray-50 rounded p-4 space-y-2">
-                            <div className="border-t border-gray-200 pt-2">
-                              <div className="flex justify-between text-gray-900 font-medium text-lg">
-                                <span>Total</span>
-                                <span>{Number(order.total_amount).toFixed(2)} DH</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   )}
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                {/* ── Expanded detail ── */}
+                <div style={{
+                  maxHeight: isExpanded ? '1000px' : '0px',
+                  overflow: 'hidden',
+                  transition: 'max-height 0.45s cubic-bezier(0.4,0,0.2,1)',
+                }}>
+                  <div style={{ borderTop: '1px solid rgba(26,26,46,0.06)' }}>
+
+                    {/* Items detail */}
+                    <div className="p-5 md:p-6 pb-0">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="w-5 h-px" style={{ background: `linear-gradient(90deg, ${cardCol}, transparent)` }} />
+                        <span className="text-[10px] font-semibold tracking-[0.28em] uppercase text-[#1a1a2e]/45"
+                          style={{ fontFamily: "'Jost', sans-serif" }}>Articles commandés</span>
+                      </div>
+                      <div className="space-y-3">
+                        {items.length > 0 ? items.map(item => (
+                          <div key={item.id} className="flex items-center gap-4 p-4"
+                            style={{ background: 'rgba(26,26,46,0.02)', border: '1px solid rgba(26,26,46,0.06)' }}>
+                            <div className="w-14 h-14 flex-shrink-0 overflow-hidden bg-[#f7f5f2]"
+                              style={{ border: '1px solid rgba(26,26,46,0.07)' }}>
+                              {item.product?.image_url ? (
+                                <img src={getProductImageUrl(item.product.image_url)} alt={item.product?.name}
+                                  className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Package size={18} style={{ color: 'rgba(26,26,46,0.18)' }} />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[14px] font-light text-[#1a1a2e] truncate"
+                                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '15px' }}>
+                                {item.product?.name || `Produit #${item.product_id}`}
+                              </p>
+                              <p className="text-[10.5px] font-light text-[#1a1a2e]/38 mt-0.5"
+                                style={{ fontFamily: "'Jost', sans-serif" }}>
+                                {Number(item.price).toFixed(2)} د.م / unité
+                              </p>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <p className="text-[15px] font-semibold text-[#1a1a2e]"
+                                style={{ fontFamily: "'Jost', sans-serif" }}>
+                                {(item.price * item.quantity).toFixed(2)}{' '}
+                                <span className="text-[10px] font-normal text-[#1a1a2e]/35">د.م</span>
+                              </p>
+                              <p className="text-[10px] font-light text-[#1a1a2e]/35"
+                                style={{ fontFamily: "'Jost', sans-serif" }}>
+                                × {item.quantity}
+                              </p>
+                            </div>
+                          </div>
+                        )) : (
+                          <p className="text-[12px] font-light text-center text-[#1a1a2e]/35 py-6"
+                            style={{ fontFamily: "'Jost', sans-serif" }}>Détails non disponibles</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Address + summary row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 md:p-6 pt-5">
+
+                      {/* Shipping address */}
+                      <div className="relative overflow-hidden p-4"
+                        style={{ background: 'rgba(26,26,46,0.02)', border: '1px solid rgba(26,26,46,0.07)' }}>
+                        <div className="absolute top-0 left-0 right-0 h-px"
+                          style={{ background: `linear-gradient(90deg, ${cardCol}, transparent)` }} />
+                        <div className="flex items-center gap-2 mb-3">
+                          <MapPin size={13} style={{ color: cardCol, flexShrink: 0 }} />
+                          <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#1a1a2e]/45"
+                            style={{ fontFamily: "'Jost', sans-serif" }}>Livraison</span>
+                        </div>
+                        <div className="space-y-1">
+                          {[
+                            { val: address.full_name, bold: true },
+                            { val: address.address },
+                            { val: address.city },
+                          ].filter(r => r.val && r.val !== 'N/A').map((row, i) => (
+                            <p key={i}
+                              className="text-[12px] leading-relaxed"
+                              style={{ fontFamily: "'Jost', sans-serif", fontWeight: row.bold ? 500 : 300, color: row.bold ? '#1a1a2e' : 'rgba(26,26,46,0.55)' }}>
+                              {row.val}
+                            </p>
+                          ))}
+                          {address.phone && address.phone !== 'N/A' && (
+                            <p className="flex items-center gap-1.5 text-[11px] font-light mt-1"
+                              style={{ fontFamily: "'Jost', sans-serif", color: 'rgba(26,26,46,0.45)' }}>
+                              <Phone size={11} style={{ color: cardCol }} /> {address.phone}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Order summary */}
+                      <div className="relative overflow-hidden p-4"
+                        style={{ background: 'rgba(26,26,46,0.02)', border: '1px solid rgba(26,26,46,0.07)' }}>
+                        <div className="absolute top-0 left-0 right-0 h-px"
+                          style={{ background: `linear-gradient(90deg, ${cardCol}, transparent)` }} />
+                        <div className="flex items-center gap-2 mb-3">
+                          <Package size={13} style={{ color: cardCol, flexShrink: 0 }} />
+                          <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#1a1a2e]/45"
+                            style={{ fontFamily: "'Jost', sans-serif" }}>Récapitulatif</span>
+                        </div>
+                        <div className="flex justify-between items-baseline pt-2"
+                          style={{ borderTop: '1px solid rgba(26,26,46,0.06)' }}>
+                          <span className="text-[11px] font-semibold tracking-[0.16em] uppercase text-[#1a1a2e]/45"
+                            style={{ fontFamily: "'Jost', sans-serif" }}>Total</span>
+                          <span className="text-[22px] font-light text-[#1a1a2e]"
+                            style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                            {Number(order.total_amount).toFixed(2)}{' '}
+                            <span style={{ fontSize: '13px' }}>د.م</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      <style>{fonts}</style>
     </div>
   );
 };
+
+const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Jost:wght@300;400;500;600&display=swap');`;
 
 export default OrdersPage;

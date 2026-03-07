@@ -103,11 +103,11 @@ const ProductsShowcase = () => {
       if (result.success) {
         console.log('Product added to cart successfully');
       } else {
-        alert(result.message || 'Erreur lors de l\'ajout au panier');
+        // alert(result.message || 'Erreur lors de l\'ajout au panier');
       }
     } catch (error) {
       console.error('Error adding product to cart:', error);
-      alert('Erreur lors de l\'ajout au panier');
+      // alert('Erreur lors de l\'ajout au panier');
     } finally {
       setAddingToCart(prev => ({ ...prev, [product.id]: false }));
     }

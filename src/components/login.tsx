@@ -51,7 +51,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
         onLoginSuccess(res.data);
       }
       
-      alert(`Welcome back ${res.data.name}!`);
+      // alert(`Welcome back ${res.data.name}!`);
       onClose();
     } catch (err) {
       const apiError = err as ApiError;
@@ -89,7 +89,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
         onLoginSuccess(userResponse.data);
       }
       
-      alert('Registration successful!');
+      // alert('Registration successful!');
       onClose();
     } catch (err) {
       const apiError = err as ApiError;

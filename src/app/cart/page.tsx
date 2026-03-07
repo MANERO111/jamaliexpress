@@ -157,7 +157,7 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] pt-36 pb-24 relative overflow-hidden">
+    <div className="min-h-screen bg-[#faf8f5] pt-40 pb-24 relative overflow-hidden">
 
       {/* ── Atmosphere ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

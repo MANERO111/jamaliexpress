@@ -1,10 +1,19 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+const HERO_IMAGES = [
+  '/img/CLEARE-INSTITUTE-RENAISSANCE.jpg',
+  '/img/MAGICLEAR-RENAISSANCE.jpg',
+  '/img/ALFA ENERGIE RENAISSANCE.png',
+  '/img/ALFA BEAUTE RENAISSANCE.png',
+  '/img/PAUL-DE-VARTENS-RENAISSANCE.jpg'
+];
+
 export default function HeroSection() {
   const heroRef = useRef<HTMLElement>(null);
+  const [bgIndex, setBgIndex] = useState(0);
 
   // Parallax on scroll
   useEffect(() => {
@@ -18,12 +27,34 @@ export default function HeroSection() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Image Slider Effect (Every 5 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <section className="hero-section" ref={heroRef}>
 
-        {/* Background */}
-        <div id="hero-bg" className="hero-bg-img" />
+        {/* Background Slider */}
+        <div id="hero-bg" className="absolute inset-0">
+          {HERO_IMAGES.map((src, idx) => (
+            <div
+              key={src}
+              className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+              style={{
+                backgroundImage: `url('${src}')`,
+                backgroundPosition: "center 30%",
+                opacity: idx === bgIndex ? 1 : 0,
+                willChange: "opacity, transform",
+                animation: idx === bgIndex ? "slowZoom 20s ease-in-out infinite alternate" : "none"
+              }}
+            />
+          ))}
+        </div>
         <div className="hero-overlay" />
         <div className="hero-glow-teal" />
         <div className="hero-glow-pink" />
@@ -72,7 +103,7 @@ export default function HeroSection() {
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                 </svg>
               </Link>
-              <Link href="/products" className="btn-ghost">
+              <Link href="/products?promotions=true" className="btn-ghost">
                 Voir les promotions
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />

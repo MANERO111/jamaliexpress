@@ -373,8 +373,10 @@ export default function Footer() {
                 className="text-[10px] font-light leading-relaxed"
                 style={{ fontFamily: "'Jost', sans-serif", color: 'rgba(255,255,255,0.38)' }}
               >
+                Livraison gratuite à <span style={{ color: '#41cdcf' }}>Maarif</span> et <span style={{ color: '#41cdcf' }}>Bourgogne</span><br />
                 Dès <span style={{ color: '#41cdcf' }}>200DH</span> à Casablanca<br />
                 Dès <span style={{ color: '#41cdcf' }}>400DH</span> hors Casablanca
+                
               </p>
             </div>
           </div>

@@ -7,6 +7,8 @@ import { useCart } from '@/contexts/CartContext';
 import { navigationItems, NavItem } from '@/constants/navigationData';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useProducts, Product } from '@/hooks/useProducts';
+import { getProductImageUrl } from '@/utils/imageHelper';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,6 +19,13 @@ const Navbar = () => {
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Search State
+  const { products } = useProducts();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
+
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   const { user, isLoading, isAuthenticated, login, logout } = useAuth();
@@ -50,6 +59,9 @@ const Navbar = () => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setIsProfileDropdownOpen(false);
       }
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -73,10 +85,10 @@ const Navbar = () => {
     setIsProfileDropdownOpen(false);
     try {
       await logout();
-      alert('Vous avez été déconnecté avec succès');
+      // alert('Vous avez été déconnecté avec succès');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Erreur inconnue';
-      alert('Erreur lors de la déconnexion: ' + message);
+      // alert('Erreur lors de la déconnexion: ' + message);
     } finally {
       setIsLoggingOut(false);
     }
@@ -90,11 +102,27 @@ const Navbar = () => {
   const toggleSubcategory = (subcategoryName: string) => {
     setActiveSubcategory(activeSubcategory === subcategoryName ? null : subcategoryName);
   };
+  
   const handleLoginSuccess = async (userData: { name: string; [key: string]: unknown }) => { await login(userData); setIsLoginModalOpen(false); };
 
   const navigateToProfile = () => { setIsProfileDropdownOpen(false); window.location.href = '/profile'; };
   const navigateToOrders = () => { setIsProfileDropdownOpen(false); window.location.href = '/orders'; };
   const navigateToDashboard = () => { setIsProfileDropdownOpen(false); window.location.href = '/admin'; };
+
+  // Search Logic
+  const getSearchResults = () => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    
+    // Search broadly across names, brands, and categories
+    return products.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      (p.brand && p.brand.toLowerCase().includes(query)) ||
+      (p.slug && p.slug.toLowerCase().includes(query))
+    ).slice(0, 4); // Limit to 4 results
+  };
+
+  const searchResults = getSearchResults();
 
   return (
     <>
@@ -118,20 +146,71 @@ const Navbar = () => {
 
                 {/* Search - Left */}
                 <div className="hidden lg:flex items-center flex-1">
-                  <div className="search-wrapper">
+                  <div className="search-wrapper" ref={searchWrapperRef}>
                     <input
                       type="text"
                       placeholder="Rechercher un produit..."
                       className="search-input"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
                     />
                     <Search size={15} className="search-icon" />
+                    
+                    {/* Live Search Dropdown */}
+                    {isSearchFocused && searchQuery.length > 0 && (
+                      <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-100 shadow-xl z-50 rounded-sm">
+                        {searchResults.length > 0 ? (
+                          <div className="max-h-80 overflow-y-auto">
+                            {searchResults.map((product) => (
+                              <Link 
+                                href={`/products`} 
+                                key={product.id}
+                                className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors"
+                              >
+                                <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
+                                  <img 
+                                    src={getProductImageUrl(product.image_url)} 
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-product.jpg'; }}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[10px] uppercase font-semibold text-[#41cdcf] truncate" style={{ fontFamily: "'Jost', sans-serif" }}>
+                                    {product.brand || "Produit"}
+                                  </p>
+                                  <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
+                                    {product.name}
+                                  </p>
+                                </div>
+                              </Link>
+                            ))}
+                            
+                            <div className="p-2 border-t border-gray-100 bg-gray-50">
+                              <Link 
+                                href={`/products`}
+                                className="block w-full text-center text-xs py-1.5 text-[#f54f9a] hover:text-[#d4326e] transition-colors"
+                                style={{ fontFamily: "'Jost', sans-serif", fontWeight: 500 }}
+                              >
+                                Voir tous les résultats
+                              </Link>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 text-center text-sm text-gray-400" style={{ fontFamily: "'Jost', sans-serif" }}>
+                            Aucun produit trouvé.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Logo - Center */}
                 <div className="flex-shrink-0 flex justify-center flex-1 lg:flex-initial logo-area">
                   <Link href="/" style={{ textDecoration: 'none' }}>
-                    <Image src="/img/logo2.png" alt="Logo" width={150} height={150} />
+                    <Image src="/img/logo2.png" alt="Logo" width={200} height={200} />
                   </Link>
                 </div>
 
@@ -186,7 +265,7 @@ const Navbar = () => {
                   </a>
 
                   {/* Mobile hamburger */}
-                  <button className="lg:hidden action-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                  <button className="lg:!hidden action-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                     {isMenuOpen ? <X /> : <Menu />}
                   </button>
                 </div>

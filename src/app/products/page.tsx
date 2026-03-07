@@ -22,6 +22,7 @@ const ProductsPageContent = () => {
   const categoryParam = searchParams.get('category') || '';
   const subcategoryParam = searchParams.get('subcategory') || '';
   const subsubcategoryParam = searchParams.get('subsubcategory') || '';
+  const promotionsParam = searchParams.get('promotions') === 'true';
 
   const findCategoryIds = () => {
     if (!categoryParam) return null;
@@ -65,6 +66,9 @@ const ProductsPageContent = () => {
       const q = searchQuery.toLowerCase();
       result = result.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
+    if (promotionsParam) {
+      result = result.filter(p => p.original_price != null && p.discounted_price != null && p.discounted_price < p.original_price);
+    }
     result = result.filter(p => {
       const price = p.discounted_price || p.original_price;
       return price >= minPrice && price <= maxPrice;
@@ -74,12 +78,12 @@ const ProductsPageContent = () => {
     else if (sortBy === 'name_asc') result.sort((a, b) => a.name.localeCompare(b.name));
     else if (sortBy === 'name_desc') result.sort((a, b) => b.name.localeCompare(a.name));
     setFilteredProducts(result);
-  }, [products, categories, categoryParam, subcategoryParam, subsubcategoryParam, minPrice, maxPrice, sortBy, searchQuery]);
+  }, [products, categories, categoryParam, subcategoryParam, subsubcategoryParam, promotionsParam, minPrice, maxPrice, sortBy, searchQuery]);
 
   // Reset visibleCount when filters change
   useEffect(() => {
     setVisibleCount(30);
-  }, [categoryParam, subcategoryParam, subsubcategoryParam, minPrice, maxPrice, sortBy, searchQuery]);
+  }, [categoryParam, subcategoryParam, subsubcategoryParam, promotionsParam, minPrice, maxPrice, sortBy, searchQuery]);
 
   const displayedProducts = filteredProducts.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProducts.length;
@@ -104,6 +108,7 @@ const ProductsPageContent = () => {
     if (subsubcategoryParam) return subsubcategoryParam;
     if (subcategoryParam) return subcategoryParam;
     if (categoryParam) return categoryParam;
+    if (promotionsParam) return 'Promotions';
     return 'Tous les produits';
   };
 
@@ -112,6 +117,7 @@ const ProductsPageContent = () => {
     if (categoryParam) crumbs.push({ label: categoryParam, href: `/products?category=${categoryParam}` });
     if (subcategoryParam) crumbs.push({ label: subcategoryParam, href: `/products?category=${categoryParam}&subcategory=${subcategoryParam}` });
     if (subsubcategoryParam) crumbs.push({ label: subsubcategoryParam, href: '#' });
+    if (promotionsParam) crumbs.push({ label: 'Promotions', href: '/products?promotions=true' });
     return crumbs;
   };
 
