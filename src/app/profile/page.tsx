@@ -17,7 +17,7 @@ const Field = ({
 }: {
   label: string; name: string; value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean; type?: string; icon: React.ComponentType<{ size?: number; className?: string }>;
+  disabled?: boolean; type?: string; icon: React.ComponentType<{ size?: number; className?: string; color?: string; style?: React.CSSProperties }>;
   error?: string; hint?: string; required?: boolean;
   suffix?: React.ReactNode;
 }) => {
@@ -75,13 +75,13 @@ const Card = ({ children, accent = '#41cdcf' }: { children: React.ReactNode; acc
 );
 
 const CardTitle = ({ icon: Icon, title, accent = '#41cdcf', action }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>; title: string; accent?: string; action?: React.ReactNode;
+  icon: React.ComponentType<{ size?: number; className?: string; color?: string; style?: React.CSSProperties }>; title: string; accent?: string; action?: React.ReactNode;
 }) => (
   <div className="flex items-center justify-between mb-7">
     <div className="flex items-center gap-3">
       <div className="w-8 h-8 flex items-center justify-center flex-shrink-0"
         style={{ background: `rgba(${accent === '#41cdcf' ? '65,205,207' : '245,79,154'},0.1)`, border: `1px solid rgba(${accent === '#41cdcf' ? '65,205,207' : '245,79,154'},0.25)` }}>
-        <Icon size={15} style={{ color: accent }} />
+        <Icon size={15} color={accent} />
       </div>
       <h3 className="text-[17px] font-light text-[#1a1a2e]"
         style={{ fontFamily: "'Cormorant Garamond', serif" }}>{title}</h3>
