@@ -13,11 +13,11 @@ const categories = [
 ];
 
 const info = [
-  { label: 'À Propos',                    href: '/about' },
-  { label: 'Contactez-nous',              href: '/contact' },
-  { label: 'Livraison & Retour',          href: '/livraison' },
-  { label: 'Conditions Générales',        href: '/cgv' },
-  { label: 'Politique de Confidentialité', href: '/confidentialite' },
+  { label: 'À Propos',                    href: '#' },
+  { label: 'Contactez-nous',              href: '#' },
+  { label: 'Livraison & Retour',          href: '#' },
+  { label: 'Conditions Générales',        href: '#' },
+  { label: 'Politique de Confidentialité', href: '#' },
 ];
 
 const socials = [
