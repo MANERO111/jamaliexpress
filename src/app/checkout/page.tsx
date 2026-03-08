@@ -110,7 +110,7 @@ const CheckoutPage: React.FC = () => {
   const city = formData.shippingCity.toLowerCase();
   const address = formData.shippingAddress.toLowerCase();
   
-  if (address.includes('maarif') || address.includes('bourgogne') || city.includes('maarif') || city.includes('bourgogne')) {
+  if (address.includes('maarif') ||address.includes('marif') || address.includes('bourgogne') || address.includes('bourgone') || address.includes('معارف') || address.includes('بورغون') || city.includes('maarif') || city.includes('bourgogne') || city.includes('معارف') || city.includes('بورغون')) {
     shippingCost = 0;
   } else if (city.includes('casablanca') || city === 'casa') {
     shippingCost = 20;

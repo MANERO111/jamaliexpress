@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Clock, Truck, CheckCircle, XCircle, Edit, Trash2 } from 'lucide-react';
+import { Clock, Truck, CheckCircle, XCircle, Edit, Trash2, Search, Filter } from 'lucide-react';
 
 import { Order, Product, Category, Subcategory, SubSubcategory, User } from '@/types/admin';
 
@@ -22,10 +22,55 @@ const Orders: React.FC<OrdersProps> = ({
   // Ensure orders is always an array and handle potential data structure issues
   const safeOrders = Array.isArray(orders) ? orders : [];
 
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState('all');
+
+  const filteredOrders = safeOrders.filter(order => {
+    const matchesSearch = 
+      order.id.toString().includes(searchTerm) ||
+      (order.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.user?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900">Gestion des Commandes</h2>
+        
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          {/* Search Input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Rechercher par ID ou client..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-full md:w-64 text-gray-900"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-full md:w-48 text-gray-900 appearance-none"
+            >
+              <option value="all">Tous les Statuts</option>
+              <option value="pending">En attente</option>
+              <option value="paid">Payée</option>
+              <option value="shipped">Expédiée</option>
+              <option value="delivered">Livrée</option>
+              <option value="canceled">Annulée</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Order Stats */}
@@ -67,14 +112,31 @@ const Orders: React.FC<OrdersProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {safeOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #{order.id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {order.user?.name || `User #${order.user_id}` || 'N/A'}
-                </td>
+              {filteredOrders.map((order) => {
+                let customerName = order.user?.name || 'N/A';
+                
+                // Try to get name from shipping address if available
+                if (order.shipping_address) {
+                  try {
+                    const address = typeof order.shipping_address === 'string' 
+                      ? JSON.parse(order.shipping_address) 
+                      : order.shipping_address;
+                    if (address && address.full_name) {
+                      customerName = address.full_name;
+                    }
+                  } catch (e) {
+                    console.error('Error parsing shipping address for name:', e);
+                  }
+                }
+
+                return (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      #{order.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {customerName}
+                    </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {order.placed_at ? new Date(order.placed_at).toLocaleDateString() : 
                    (order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A')}
@@ -91,11 +153,11 @@ const Orders: React.FC<OrdersProps> = ({
                     onChange={(e) => updateOrderStatus(order.id, { status: e.target.value })}
                     className={`text-xs font-semibold rounded-full px-3 py-1 border-0 ${getStatusColor(order.status)}`}
                   >
-                    <option value="pending">pending</option>
-                    <option value="shipped">shipped</option>
-                    <option value="paid">paid</option>
-                    <option value="delivered">delivered</option>
-                    <option value="canceled">canceled</option>
+                    <option value="pending">En Attente</option>
+                    <option value="shipped">Expédiée</option>
+                    <option value="paid">Payée</option>
+                    <option value="delivered">Livrée</option>
+                    <option value="canceled">Annulée</option>
                   </select>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -117,12 +179,13 @@ const Orders: React.FC<OrdersProps> = ({
                     </button>
                   </div>
                 </td>
-              </tr>
-            ))}
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
         
-        {safeOrders.length === 0 && (
+        {filteredOrders.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500">Aucune commande trouvée</p>
           </div>
