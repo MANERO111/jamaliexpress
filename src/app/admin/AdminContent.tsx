@@ -340,6 +340,20 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
       await axios.put(`/api/orders/${id}`, orderData);
       await fetchOrders();
     } catch (err: unknown) {
+      console.error('Error updating order status:', err);
+      setError('Failed to update order status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOrder = async (id: number, orderData: any) => {
+    try {
+      setLoading(true);
+      await axios.put(`/api/orders/${id}`, orderData);
+      await fetchOrders();
+      closeModal();
+    } catch (err: unknown) {
       console.error('Error updating order:', err);
       setError('Failed to update order');
     } finally {
@@ -557,6 +571,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             getStatusColor={getStatusColor}
             updateOrderStatus={updateOrderStatus}
             deleteOrder={deleteOrder}
+            openModal={openModal}
           />
         );
 
@@ -655,6 +670,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
             updateSubSubCategory={updateSubSubCategory}
             createUser={createUser}
             updateUser={updateUser}
+            updateOrder={updateOrder}
             loading={loading}
           />
         </>

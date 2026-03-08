@@ -16,8 +16,8 @@ const AdminDashboard = () => {
     { id: 'orders', label: 'Commandes', icon: ShoppingCart },
     { id: 'users', label: 'Utilisateurs', icon: Users },
     { id: 'inventory', label: 'Inventaire', icon: Package },
-    { id: 'payments', label: 'Paiements', icon: CreditCard },
-    { id: 'settings', label: 'Paramètres', icon: Settings },
+    // { id: 'payments', label: 'Paiements', icon: CreditCard },
+    // { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
   return (

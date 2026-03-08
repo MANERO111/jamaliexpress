@@ -9,13 +9,15 @@ interface OrdersProps {
   getStatusColor: (status: string) => string;
   updateOrderStatus: (id: number, orderData: { status: string }) => Promise<void>;
   deleteOrder: (id: number) => Promise<void>;
+  openModal: (type: string, item?: any) => void;
 }
 
 const Orders: React.FC<OrdersProps> = ({
   orders,
   getStatusColor,
   updateOrderStatus,
-  deleteOrder
+  deleteOrder,
+  openModal
 }) => {
   // Ensure orders is always an array and handle potential data structure issues
   const safeOrders = Array.isArray(orders) ? orders : [];
@@ -27,12 +29,13 @@ const Orders: React.FC<OrdersProps> = ({
       </div>
 
       {/* Order Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
           { label: 'En Attente', count: safeOrders.filter(o => o.status === 'pending').length, color: 'yellow', icon: Clock },
           { label: 'Expédiées', count: safeOrders.filter(o => o.status === 'shipped').length, color: 'blue', icon: Truck },
+          { label: 'Payées', count: safeOrders.filter(o => o.status === 'paid').length, color: 'green', icon: CheckCircle },
           { label: 'Livrées', count: safeOrders.filter(o => o.status === 'delivered').length, color: 'green', icon: CheckCircle },
-          { label: 'Annulées', count: safeOrders.filter(o => o.status === 'cancelled').length, color: 'red', icon: XCircle }
+          { label: 'Annulées', count: safeOrders.filter(o => o.status === 'canceled').length, color: 'red', icon: XCircle }
         ].map((stat, index) => {
           const IconComponent = stat.icon;
           return (
@@ -92,15 +95,18 @@ const Orders: React.FC<OrdersProps> = ({
                     <option value="shipped">shipped</option>
                     <option value="paid">paid</option>
                     <option value="delivered">delivered</option>
-                    <option value="cancelled">cancelled</option>
+                    <option value="canceled">canceled</option>
                   </select>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-2">
-                    <button className="text-blue-600 hover:text-blue-900">
+                    {/* <button className="text-blue-600 hover:text-blue-900">
                       <Eye size={16} />
-                    </button>
-                    <button className="text-green-600 hover:text-green-900">
+                    </button> */}
+                    <button 
+                      onClick={() => openModal('order', order)}
+                      className="text-green-600 hover:text-green-900"
+                    >
                       <Edit size={16} />
                     </button>
                     <button 

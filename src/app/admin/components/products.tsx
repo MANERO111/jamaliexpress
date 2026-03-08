@@ -167,7 +167,7 @@ const Products: React.FC<ProductsProps> = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900"><Eye size={16} /></button>
+                      {/* <button className="text-blue-600 hover:text-blue-900"><Eye size={16} /></button> */}
                       <button
                         onClick={() => openModal('product', product)}
                         className="text-green-600 hover:text-green-900"

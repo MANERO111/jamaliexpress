@@ -22,6 +22,7 @@ interface ModalProps {
   updateSubSubCategory: (id: number, data: Partial<SubSubcategory>) => Promise<void>;
   createUser?: (data: Partial<User>) => Promise<void>;
   updateUser?: (id: number, data: Partial<User>) => Promise<void>;
+  updateOrder?: (id: number, data: any) => Promise<void>;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -42,7 +43,8 @@ const Modal: React.FC<ModalProps> = ({
   createSubSubCategory,
   updateSubSubCategory,
   createUser,
-  updateUser
+  updateUser,
+  updateOrder
 }) => {
   const [selectedCategoryId, setSelectedCategoryId] = React.useState<string>(() => {
     if (!selectedItem) return '';
@@ -67,17 +69,30 @@ const Modal: React.FC<ModalProps> = ({
     }
   }, [selectedItem, showModal]);
 
-  if (!showModal) return null;
-
-  const isEditing = selectedItem !== null;
-
   // Narrowed types for better type safety and to avoid lint errors
   const productItem = modalType === 'product' && selectedItem ? selectedItem as Product : null;
   const categoryItem = modalType === 'category' && selectedItem ? selectedItem as Category : null;
   const subCategoryItem = modalType === 'subcategory' && selectedItem ? selectedItem as Subcategory : null;
   const subSubCategoryItem = modalType === 'sub_subcategory' && selectedItem ? selectedItem as SubSubcategory : null;
   const userItem = modalType === 'user' && selectedItem ? selectedItem as User : null;
-  // const orderItem = modalType === 'order' && selectedItem ? selectedItem as Order : null;
+  const orderItem = modalType === 'order' && selectedItem ? selectedItem as Order : null;
+
+  // Parse shipping address if it's a string
+  const parsedAddress = React.useMemo(() => {
+    if (!orderItem?.shipping_address) return null;
+    try {
+      return typeof orderItem.shipping_address === 'string' 
+        ? JSON.parse(orderItem.shipping_address) 
+        : orderItem.shipping_address;
+    } catch (e) {
+      console.error('Error parsing shipping address:', e);
+      return null;
+    }
+  }, [orderItem]);
+
+  if (!showModal) return null;
+
+  const isEditing = selectedItem !== null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -139,6 +154,22 @@ const Modal: React.FC<ModalProps> = ({
           } else {
             console.error('createUser function is not available'); // Debug
           }
+        }
+      } else if (modalType === 'order') {
+        const data = Object.fromEntries(formData.entries());
+        const orderData = {
+          status: data.status,
+          total_amount: parseFloat(data.total_amount as string),
+          shipping_address: {
+            full_name: data.full_name,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+          }
+        };
+
+        if (isEditing && updateOrder) {
+          await updateOrder(selectedItem.id, orderData);
         }
       }
     } catch (error) {
@@ -622,7 +653,111 @@ const Modal: React.FC<ModalProps> = ({
               </div>
             </div>
           )}
+          {modalType === 'order' && orderItem && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ID Commande</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={`#${orderItem.id}`}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total (DH)</label>
+                  <input
+                    type="number"
+                    name="total_amount"
+                    step="0.01"
+                    defaultValue={orderItem.total_amount}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                    required
+                  />
+                </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                  <select
+                    name="status"
+                    defaultValue={orderItem.status}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                  >
+                    <option value="pending">En attente (Pending)</option>
+                    <option value="paid">Payée (Paid)</option>
+                    <option value="shipped">Expédiée (Shipped)</option>
+                    <option value="delivered">Livrée (Delivered)</option>
+                    <option value="canceled">Annulée (Canceled)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Méthode de Paiement</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={orderItem.payment_method || 'N/A'}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 mt-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Détails de Livraison</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom Complet</label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      defaultValue={parsedAddress?.full_name || ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        defaultValue={parsedAddress?.phone || ''}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+                      <input
+                        type="text"
+                        name="city"
+                        defaultValue={parsedAddress?.city || ''}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+                    <textarea
+                      name="address"
+                      rows={2}
+                      defaultValue={parsedAddress?.address || ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-500">
+                <p>Passée le: {orderItem.placed_at ? new Date(orderItem.placed_at).toLocaleString('fr-FR') : 'N/A'}</p>
+                <p>Client ID: {orderItem.user_id}</p>
+              </div>
+            </div>
+          )}
           <div className="flex items-center justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"
