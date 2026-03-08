@@ -91,3 +91,14 @@ export interface OrderItem {
     price: number | string;
     product?: Product;
 }
+
+export interface UpdateOrderData {
+    status: string;
+    total_amount: number;
+    shipping_address: {
+        full_name: string;
+        phone: string;
+        address: string;
+        city: string;
+    };
+}

@@ -11,7 +11,7 @@ import Orders from './components/orders';
 import UsersComponent from './components/users';
 import Inventory from './components/inventory';
 import Modal from './components/modal';
-import { Product, Category, Subcategory, SubSubcategory, Order, OrderItem, User } from '@/types/admin';
+import { Product, Category, Subcategory, SubSubcategory, Order, OrderItem, User, UpdateOrderData } from '@/types/admin';
 
 
 const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
@@ -347,7 +347,7 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     }
   };
 
-  const updateOrder = async (id: number, orderData: any) => {
+  const updateOrder = async (id: number, orderData: UpdateOrderData) => {
     try {
       setLoading(true);
       await axios.put(`/api/orders/${id}`, orderData);

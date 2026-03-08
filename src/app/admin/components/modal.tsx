@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { X, Save } from 'lucide-react';
-import { Product, Category, Subcategory, SubSubcategory, User, Order } from '@/types/admin';
+import { Product, Category, Subcategory, SubSubcategory, User, Order, UpdateOrderData } from '@/types/admin';
 
 interface ModalProps {
   showModal: boolean;
@@ -22,7 +22,7 @@ interface ModalProps {
   updateSubSubCategory: (id: number, data: Partial<SubSubcategory>) => Promise<void>;
   createUser?: (data: Partial<User>) => Promise<void>;
   updateUser?: (id: number, data: Partial<User>) => Promise<void>;
-  updateOrder?: (id: number, data: any) => Promise<void>;
+  updateOrder?: (id: number, data: UpdateOrderData) => Promise<void>;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -157,18 +157,18 @@ const Modal: React.FC<ModalProps> = ({
         }
       } else if (modalType === 'order') {
         const data = Object.fromEntries(formData.entries());
-        const orderData = {
-          status: data.status,
+        const orderData: UpdateOrderData = {
+          status: data.status as string,
           total_amount: parseFloat(data.total_amount as string),
           shipping_address: {
-            full_name: data.full_name,
-            phone: data.phone,
-            address: data.address,
-            city: data.city,
+            full_name: data.full_name as string,
+            phone: data.phone as string,
+            address: data.address as string,
+            city: data.city as string,
           }
         };
 
-        if (isEditing && updateOrder) {
+        if (isEditing && updateOrder && selectedItem) {
           await updateOrder(selectedItem.id, orderData);
         }
       }

@@ -1,15 +1,15 @@
 'use client';
 import React from 'react';
-import { Clock, Truck, CheckCircle, XCircle, Eye, Edit, Trash2 } from 'lucide-react';
+import { Clock, Truck, CheckCircle, XCircle, Edit, Trash2 } from 'lucide-react';
 
-import { Order } from '@/types/admin';
+import { Order, Product, Category, Subcategory, SubSubcategory, User } from '@/types/admin';
 
 interface OrdersProps {
   orders: Order[];
   getStatusColor: (status: string) => string;
   updateOrderStatus: (id: number, orderData: { status: string }) => Promise<void>;
   deleteOrder: (id: number) => Promise<void>;
-  openModal: (type: string, item?: any) => void;
+  openModal: (type: string, item?: Product | Category | Subcategory | SubSubcategory | User | Order | null) => void;
 }
 
 const Orders: React.FC<OrdersProps> = ({
