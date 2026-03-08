@@ -42,15 +42,15 @@ const AboutUs = () => {
         <div className="max-w-screen-xl mx-auto relative z-20 text-center">
           <div className="inline-flex items-center gap-4 mb-6 animate-[slideUp_0.8s_ease-out]">
             <div className="h-[1px] w-12 bg-gradient-to-r from-[#f54f9a] to-transparent" />
-            <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-[#f54f9a]">L'Excellence Jamali</span>
+            <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-[#f54f9a]">L&apos;Excellence Jamali</span>
             <div className="h-[1px] w-12 bg-gradient-to-l from-[#41cdcf] to-transparent" />
           </div>
           <h1 className="logo-font text-5xl lg:text-7xl font-light text-[#1a1a2e] mb-8 animate-[slideUp_0.9s_ease-out_0.1s_both]">
             À Propos de <span className="italic">Nous</span>
           </h1>
           <p className="navbar-font text-sm lg:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed animate-[slideUp_1s_ease-out_0.2s_both]">
-            Depuis notre création, Jamali Express s'engage à redéfinir les standards de la beauté et du bien-être, 
-            en sélectionnant avec soin des produits d'exception pour sublimer votre quotidien.
+            Depuis notre création, Jamali Express s&apos;engage à redéfinir les standards de la beauté et du bien-être, 
+            en sélectionnant avec soin des produits d&apos;exception pour sublimer votre quotidien.
           </p>
         </div>
       </section>
@@ -71,22 +71,22 @@ const AboutUs = () => {
             <div className="absolute -top-10 -left-10 z-20 hidden lg:block">
               <div className="bg-white p-8 shadow-2xl rounded-sm">
                 <span className="logo-font text-4xl block text-[#41cdcf]">12+</span>
-                <span className="navbar-font text-[9px] uppercase tracking-widest text-gray-400">Années d'Expérience</span>
+                <span className="navbar-font text-[9px] uppercase tracking-widest text-gray-400">Années d&apos;Expérience</span>
               </div>
             </div>
           </div>
 
           <div className="animate-[slideUp_1s_ease-out]">
             <span className="navbar-font text-[10px] uppercase tracking-[0.3em] text-[#41cdcf] font-bold block mb-4">Notre Mission</span>
-            <h2 className="logo-font text-4xl lg:text-5xl text-[#1a1a2e] mb-8">L'Art de la Beauté <br /><span className="italic text-[#f54f9a]">Authentique</span></h2>
+            <h2 className="logo-font text-4xl lg:text-5xl text-[#1a1a2e] mb-8">L&apos;Art de la Beauté <br /><span className="italic text-[#f54f9a]">Authentique</span></h2>
             <div className="space-y-6 text-gray-500 navbar-font text-sm leading-relaxed">
               <p>
-                Jamali Express est né d'une passion pour l'excellence et d'un désir profond de rendre accessible la haute cosmétique. 
+                Jamali Express est né d&apos;une passion pour l&apos;excellence et d&apos;un désir profond de rendre accessible la haute cosmétique. 
                 Nous ne nous contentons pas de vendre des produits ; nous vous accompagnons dans votre rituel de beauté personnel.
               </p>
               <p>
-                Chaque marque présente dans notre boutique est scrupuleusement analysée. Nous privilégions l'innovation, 
-                la qualité des ingrédients et l'éthique de production pour vous garantir des résultats visibles et durables.
+                Chaque marque présente dans notre boutique est scrupuleusement analysée. Nous privilégions l&apos;innovation, 
+                la qualité des ingrédients et l&apos;éthique de production pour vous garantir des résultats visibles et durables.
               </p>
               <div className="pt-4 grid grid-cols-2 gap-8">
                 <div>
