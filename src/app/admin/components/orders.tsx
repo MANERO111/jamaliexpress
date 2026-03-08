@@ -26,10 +26,27 @@ const Orders: React.FC<OrdersProps> = ({
   const [statusFilter, setStatusFilter] = React.useState('all');
 
   const filteredOrders = safeOrders.filter(order => {
+    // Extract customer name for matching, similar to how it's done in the render
+    let customerNameFromAddress = '';
+    if (order.shipping_address) {
+      try {
+        const address = typeof order.shipping_address === 'string' 
+          ? JSON.parse(order.shipping_address) 
+          : order.shipping_address;
+        if (address && address.full_name) {
+          customerNameFromAddress = address.full_name;
+        }
+      } catch (e) {
+        // Silently fail search name extraction
+      }
+    }
+
+    const term = searchTerm.toLowerCase();
     const matchesSearch = 
       order.id.toString().includes(searchTerm) ||
-      (order.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.user?.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (order.user?.name || '').toLowerCase().includes(term) ||
+      (order.user?.email || '').toLowerCase().includes(term) ||
+      customerNameFromAddress.toLowerCase().includes(term);
     
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     
