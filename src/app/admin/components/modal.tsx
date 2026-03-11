@@ -178,10 +178,10 @@ const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-xl w-full max-h-[95vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">
             {isEditing ? 'Modifier' : 'Ajouter'} {
               modalType === 'product' ? 'Produit' :
                 modalType === 'category' ? 'Catégorie' :
@@ -190,55 +190,55 @@ const Modal: React.FC<ModalProps> = ({
                       modalType === 'user' ? 'Utilisateur' : ''
             }
           </h3>
-          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
-            <X size={24} />
+          <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 p-1">
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 overflow-y-auto">
           {modalType === 'product' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom du Produit</label>
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Nom du Produit</label>
                   <input
                     type="text"
                     name="name"
                     defaultValue={productItem?.name || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                     placeholder="Nom du produit"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Marque</label>
                   <input
                     type="text"
                     name="brand"
                     defaultValue={productItem?.brand || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                     placeholder="Marque du produit"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Slug</label>
                   <input
                     type="text"
                     name="slug"
                     defaultValue={productItem?.slug || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
-                    placeholder="produit-slug (URL friendly)"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
+                    placeholder="produit-slug"
                     required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Catégorie</label>
                   <select
                     name="category_id"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900"
                     value={selectedCategoryId}
                     onChange={(e) => {
                       setSelectedCategoryId(e.target.value);
@@ -246,22 +246,22 @@ const Modal: React.FC<ModalProps> = ({
                     }}
                     required
                   >
-                    <option value="">Sélectionner une catégorie</option>
+                    <option value="">Sélectionner</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sous-catégorie</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Sous-catégorie</label>
                   <select
                     name="subcategory_id"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
                     value={selectedSubCategoryId}
                     onChange={(e) => setSelectedSubCategoryId(e.target.value)}
                     disabled={!selectedCategoryId}
                   >
-                    <option value="">Sélectionner une sous-catégorie</option>
+                    <option value="">Sélectionner</option>
                     {subCategories
                       .filter(sc => sc.category_id.toString() === selectedCategoryId)
                       .map(sc => (
@@ -271,14 +271,14 @@ const Modal: React.FC<ModalProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Sous-sous-catégorie</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Sous-sous-catéc.</label>
                   <select
                     name="sub_subcategory_id"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
                     defaultValue={productItem?.sub_subcategory_id || ''}
                     disabled={!selectedSubCategoryId}
                   >
-                    <option value="">Sélectionner une sous-sous-catégorie</option>
+                    <option value="">Sélectionner</option>
                     {subSubCategories
                       .filter(ssc => ssc.subcategory_id.toString() === selectedSubCategoryId)
                       .map(ssc => (
@@ -289,90 +289,87 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix Original (DH)</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Prix Orig. (DH)</label>
                   <input
                     type="number"
                     name="original_price"
                     step="0.01"
                     defaultValue={productItem?.original_price || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                     placeholder="0.00"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix Remisé (DH)</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Prix Rem. (DH)</label>
                   <input
                     type="number"
                     name="discounted_price"
                     step="0.01"
                     defaultValue={productItem?.discounted_price || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                     placeholder="0.00"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Stock</label>
                   <input
                     type="number"
                     name="stock_quantity"
                     defaultValue={productItem?.stock_quantity ?? ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                     placeholder="0"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                  {/* <label className="block text-xs font-medium text-gray-700 mb-1">Statut</label>
                   <select
                     name="status"
                     defaultValue={productItem?.status || 'active'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900"
                   >
                     <option value="active">Actif</option>
                     <option value="draft">Brouillon</option>
-                    <option value="out_of_stock">Rupture de Stock</option>
-                  </select>
+                    <option value="out_of_stock">Rupture</option>
+                  </select> */}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image du Produit</label>
-                <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Image du Produit</label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <input
                     type="file"
                     name="image"
                     accept="image/*"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                    className="flex-1 px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-xs text-gray-900 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                   />
                   {productItem?.image_url && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <span>Image actuelle:</span>
+                    <div className="flex items-center space-x-2 text-xs text-gray-600">
+                      <span>Actuelle:</span>
                       <a
                         href={productItem.image_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-red-600 hover:text-red-800 underline"
                       >
-                        Voir l&apos;image
+                        Voir
                       </a>
                     </div>
                   )}
-                  <p className="text-xs text-gray-500">
-                    Formats acceptés: JPG, PNG, GIF. Taille max: 5MB
-                  </p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
                 <textarea
                   name="description"
-                  rows={4}
+                  rows={3}
                   defaultValue={productItem?.description || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-gray-900 placeholder-gray-500"
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 text-sm text-gray-900 placeholder-gray-400"
                   placeholder="Description du produit"
                 ></textarea>
               </div>
@@ -758,20 +755,20 @@ const Modal: React.FC<ModalProps> = ({
               </div>
             </div>
           )}
-          <div className="flex items-center justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-2 mt-4 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={closeModal}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center space-x-2 disabled:opacity-50"
+              className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center space-x-2 disabled:opacity-50 text-sm"
             >
-              <Save size={16} />
+              <Save size={14} />
               <span>{loading ? 'Sauvegarde...' : (isEditing ? 'Mettre à jour' : 'Créer')}</span>
             </button>
           </div>

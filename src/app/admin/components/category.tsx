@@ -27,6 +27,47 @@ const Categories: React.FC<CategoriesProps> = ({
 }) => {
   const [activeView, setActiveView] = useState<'main' | 'sub' | 'subsub'>('main');
 
+  const topScrollRef = React.useRef<HTMLDivElement>(null);
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const [scrollWidth, setScrollWidth] = React.useState(1000);
+
+  // Sync scroll bars and update width
+  React.useEffect(() => {
+    const topScroll = topScrollRef.current;
+    const tableContainer = tableContainerRef.current;
+
+    if (!topScroll || !tableContainer) return;
+
+    const updateWidth = () => {
+      setScrollWidth(tableContainer.scrollWidth);
+    };
+
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(tableContainer);
+
+    const handleTopScroll = () => {
+      if (tableContainer.scrollLeft !== topScroll.scrollLeft) {
+        tableContainer.scrollLeft = topScroll.scrollLeft;
+      }
+    };
+
+    const handleTableScroll = () => {
+      if (topScroll.scrollLeft !== tableContainer.scrollLeft) {
+        topScroll.scrollLeft = tableContainer.scrollLeft;
+      }
+    };
+
+    topScroll.addEventListener('scroll', handleTopScroll);
+    tableContainer.addEventListener('scroll', handleTableScroll);
+
+    return () => {
+      topScroll.removeEventListener('scroll', handleTopScroll);
+      tableContainer.removeEventListener('scroll', handleTableScroll);
+      resizeObserver.disconnect();
+    };
+  }, [activeView]); // Re-sync when view changes as table content changes
+
   const getProductCount = (type: 'category' | 'subcategory' | 'subsubcategory', id: number): number => {
     return products.filter(product => {
       if (type === 'category') return product.category_id === id;
@@ -116,8 +157,20 @@ const Categories: React.FC<CategoriesProps> = ({
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full">
+      {/* Top Scrollbar */}
+      <div 
+        ref={topScrollRef}
+        className="overflow-x-auto h-5 bg-gray-100 border-x border-t border-gray-300 rounded-t-lg top-scrollbar relative z-10" 
+      >
+        <div style={{ width: `${scrollWidth}px`, height: '1px' }}></div>
+      </div>
+
+      {/* Categories Table */}
+      <div 
+        ref={tableContainerRef}
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto"
+      >
+        <table className="w-full min-w-[1000px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -213,6 +266,25 @@ const Categories: React.FC<CategoriesProps> = ({
           </tbody>
         </table>
       </div>
+      <style jsx>{`
+        .top-scrollbar::-webkit-scrollbar {
+          height: 10px;
+        }
+        .top-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        .top-scrollbar::-webkit-scrollbar-thumb {
+          background: #dc2626;
+          border-radius: 5px;
+        }
+        .top-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #b91c1c;
+        }
+        .top-scrollbar {
+          scrollbar-width: auto;
+          scrollbar-color: #dc2626 #f1f1f1;
+        }
+      `}</style>
     </div>
   );
 };

@@ -28,6 +28,47 @@ const UsersComponent: React.FC<UsersComponentProps> = ({
     );
   });
 
+  const topScrollRef = React.useRef<HTMLDivElement>(null);
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const [scrollWidth, setScrollWidth] = React.useState(1000);
+
+  // Sync scroll bars and update width
+  React.useEffect(() => {
+    const topScroll = topScrollRef.current;
+    const tableContainer = tableContainerRef.current;
+
+    if (!topScroll || !tableContainer) return;
+
+    const updateWidth = () => {
+      setScrollWidth(tableContainer.scrollWidth);
+    };
+
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(tableContainer);
+
+    const handleTopScroll = () => {
+      if (tableContainer.scrollLeft !== topScroll.scrollLeft) {
+        tableContainer.scrollLeft = topScroll.scrollLeft;
+      }
+    };
+
+    const handleTableScroll = () => {
+      if (topScroll.scrollLeft !== tableContainer.scrollLeft) {
+        topScroll.scrollLeft = tableContainer.scrollLeft;
+      }
+    };
+
+    topScroll.addEventListener('scroll', handleTopScroll);
+    tableContainer.addEventListener('scroll', handleTableScroll);
+
+    return () => {
+      topScroll.removeEventListener('scroll', handleTopScroll);
+      tableContainer.removeEventListener('scroll', handleTableScroll);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -42,7 +83,7 @@ const UsersComponent: React.FC<UsersComponentProps> = ({
               placeholder="Rechercher par nom, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-full md:w-64 text-gray-900"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 w-full md:w-64 text-gray-900 bg-white"
             />
           </div>
 
@@ -56,9 +97,20 @@ const UsersComponent: React.FC<UsersComponentProps> = ({
         </div>
       </div>
 
+      {/* Top Scrollbar */}
+      <div 
+        ref={topScrollRef}
+        className="overflow-x-auto h-5 bg-gray-100 border-x border-t border-gray-300 rounded-t-lg top-scrollbar relative z-10" 
+      >
+        <div style={{ width: `${scrollWidth}px`, height: '1px' }}></div>
+      </div>
+
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
-        <table className="w-full">
+      <div 
+        ref={tableContainerRef}
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto"
+      >
+        <table className="w-full min-w-[1000px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
@@ -145,6 +197,25 @@ const UsersComponent: React.FC<UsersComponentProps> = ({
           </tbody>
         </table>
       </div>
+      <style jsx>{`
+        .top-scrollbar::-webkit-scrollbar {
+          height: 10px;
+        }
+        .top-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        .top-scrollbar::-webkit-scrollbar-thumb {
+          background: #dc2626;
+          border-radius: 5px;
+        }
+        .top-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #b91c1c;
+        }
+        .top-scrollbar {
+          scrollbar-width: auto;
+          scrollbar-color: #dc2626 #f1f1f1;
+        }
+      `}</style>
     </div>
   );
 };
