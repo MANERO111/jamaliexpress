@@ -190,9 +190,9 @@ const Navbar = () => {
                                   <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
                                     {product.name}
                                   </p>
-                                  <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
+                                  {/* <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
                                     {product.discounted_price} DH
-                                  </p>
+                                  </p> */}
                                 </div>
                               </button>
                             ))}
