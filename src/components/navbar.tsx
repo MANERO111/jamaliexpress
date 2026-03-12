@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LayoutDashboard, User, Menu, X, ChevronDown, Settings, LogOut, Search, ShoppingBag, Heart, Package } from 'lucide-react';
 import LoginModal from './login';
+import ProductModal from './products/ProductModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { navigationItems, NavItem } from '@/constants/navigationData';
@@ -24,6 +25,8 @@ const Navbar = () => {
   const { products } = useProducts();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const searchWrapperRef = useRef<HTMLDivElement>(null);
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -163,10 +166,14 @@ const Navbar = () => {
                         {searchResults.length > 0 ? (
                           <div className="max-h-80 overflow-y-auto">
                             {searchResults.map((product) => (
-                              <Link 
-                                href={`/products`} 
+                              <button 
                                 key={product.id}
-                                className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors"
+                                onClick={() => {
+                                  setSelectedProduct(product);
+                                  setIsProductModalOpen(true);
+                                  setIsSearchFocused(false);
+                                }}
+                                className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors text-left"
                               >
                                 <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded overflow-hidden">
                                   <img 
@@ -183,8 +190,11 @@ const Navbar = () => {
                                   <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
                                     {product.name}
                                   </p>
+                                  <p className="text-xs text-black truncate" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}>
+                                    {product.discounted_price} DH
+                                  </p>
                                 </div>
-                              </Link>
+                              </button>
                             ))}
                             
                             <div className="p-2 border-t border-gray-100 bg-gray-50">
@@ -350,6 +360,12 @@ const Navbar = () => {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+      />
+
+      <ProductModal
+        product={selectedProduct}
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
       />
     </>
   );
