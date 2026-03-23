@@ -128,12 +128,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose })
             </div>
 
             {/* Stock */}
-            <div className="mb-8 flex items-center gap-2">
+            {/* <div className="mb-8 flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${product.stock_quantity > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
               <span className="text-xs font-medium text-gray-500">
                 {product.stock_quantity > 0 ? `En stock (${product.stock_quantity} disponibles)` : 'Rupture de stock'}
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* Action Row */}
@@ -171,9 +171,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose })
               </button>
               
               {/* Share Button */}
-              <button className="p-3 rounded-xl border border-gray-200 text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-all duration-300">
+              {/* <button className="p-3 rounded-xl border border-gray-200 text-gray-400 hover:border-gray-900 hover:text-gray-900 transition-all duration-300">
                 <Share2 size={20} />
-              </button>
+              </button> */}
             </div>
 
             {/* Add to Cart Button */}

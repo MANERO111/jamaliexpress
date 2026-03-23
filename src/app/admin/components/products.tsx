@@ -172,54 +172,19 @@ const Products: React.FC<ProductsProps> = ({
         <table className="w-full min-w-[1000px]">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marque</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix O.</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix R.</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marque</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th> */}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {displayedProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <img
-                        src={getProductImageUrl(product.image_url)}
-                        alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover mr-4"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400';
-                        }}
-                      />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                        <div className="text-sm text-gray-500">ID: {product.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {product.brand || '---'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate max-w-xs" title={getCategoryPath(product)}>
-                    {getCategoryPath(product)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.original_price}DH</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">{product.discounted_price ? `${product.discounted_price}DH` : '---'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`text-sm font-medium ${(product.stock_quantity || product.stock || 0) < 10 ? 'text-red-600' : 'text-gray-900'}`}>
-                      {product.stock_quantity || product.stock || 0}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(product.status || 'active')}`}>
-                      {product.status || 'active'}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       {/* <button className="text-blue-600 hover:text-blue-900"><Eye size={16} /></button> */}
@@ -237,6 +202,41 @@ const Products: React.FC<ProductsProps> = ({
                       </button>
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(product.status || 'active')}`}>
+                      {product.status || 'active'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <img
+                        src={getProductImageUrl(product.image_url)}
+                        alt={product.name}
+                        className="w-12 h-12 rounded-lg object-cover mr-4"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400';
+                        }}
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                        <div className="text-sm text-gray-500">ID: {product.id}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.original_price}DH</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-medium">{product.discounted_price ? `${product.discounted_price}DH` : '---'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {product.brand || '---'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate max-w-xs" title={getCategoryPath(product)}>
+                    {getCategoryPath(product)}
+                  </td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`text-sm font-medium ${(product.stock_quantity || product.stock || 0) < 10 ? 'text-red-600' : 'text-gray-900'}`}>
+                      {product.stock_quantity || product.stock || 0}
+                    </span>
+                  </td> */}
                 </tr>
               ))}
           </tbody>

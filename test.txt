@@ -1,0 +1,315 @@
+update products set subcategory_id = 1 where name = 'EMBRYOLISSE LAIT CREME FLUIDE+ VISAGE ET CORPS 400ML' ;
+
+update products set subcategory_id = 1 where name = 'ISDIN FOTOPROTECTEUR FUSION WATER COLOR MEDIUM 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SKEYNDOR ETERNAL REDENSIFYING RICH CREAM 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SKEYNDOR POWER C+ ENERGIZING EMULSION PMG 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SKEYNDOR POWER HYALURONIC INTENSIVE MOISTURISING CREAM PS/TS 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SKEYNDOR POWER OXYGEN CITY POLLUTION BLOCK CREAM +O2 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SVR C20 BIOTIC CREME UNIFORMISANTE LISSANTE RECHARGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SVR COLLAGEN BIOTIC CREME REBONDISSANTE RECHARGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'SVR HYALU BIOTIC GELEE REPULPANTE LISSANTE RECHARGE 50ML' ;
+
+
+update products set subcategory_id = 1 where name = 'EMBRYOLISSE SOIN HYDRATANT MATIFIANT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'NUXE SUN LAIT FONDANT VISAGE ET CORPS SPF50+ TTP 150ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE COFFRET ECLAT DU JARDIN MARIN CREME 50ML + GOMME MARINE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'EMBRYOLISSE HYDRA CREME LEGERE 40ML' ;
+
+update products set subcategory_id = 1 where name = 'VICHY CAPITAL SOLEIL CREME TOUCHER SEC INVISIBLE 50ML + 2 MINI LIFTACTIV...' ;
+
+update products set subcategory_id = 1 where name = 'H&S LINE ECRAN SOLAIRE INVISIBLE SPF50+ 50ML' ;
+
+update products set subcategory_id = 1 where name = 'D WHITE ECRAN SOLAIRE ULTRA FLUIDE MATIFIANTE SPF50+ 40ML' ;
+
+update products set subcategory_id = 1 where name = 'DEMAIN MATIN GO FOR PROTECTION SOIN HYDRATANT VISAGE 25ML' ;
+
+update products set subcategory_id = 1 where name = 'CLINIQUE EVEN BETTER CREME HYDRATANTE ILLUMINATRICE 50ML V3TC' ;
+
+update products set subcategory_id = 1 where name = 'THALGO SPIRULINE BOOST CREME ENERGISANTE 50ML VT22021' ;
+
+update products set subcategory_id = 1 where name = 'MAVIDERMA CREME ANTI IMPERFECTIONS 50ML' ;
+
+update products set subcategory_id = 1 where name = 'JANSSEN COSMETICS CREME HYDRATATION INTENSE 50 ML' ;
+
+update products set subcategory_id = 1 where name = 'JANSSEN COSMETICS GEL HYDRO ACTIF 50 ML' ;
+
+update products set subcategory_id = 1 where name = 'ALPHANOVA CREME RICHE HYDRATANTE HYDRA+ 50ML' ;
+
+update products set subcategory_id = 1 where name = 'DEPILIA CICAPRO PLUS CREME REPARATRICE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'DEPILIA CREME VISAGE HYDRA PLUS 72H 50ML' ;
+
+update products set subcategory_id = 1 where name = 'JANSSEN COSMETICS CREME HYDRATATION INTENSE 150ML' ;
+
+update products set subcategory_id = 1 where name = 'JANSSEN COSMETICS CREME REGULATRICE AU RETINOL 50ML' ;
+
+update products set subcategory_id = 1 where name = 'JANSSEN COSMETICS PROTECTION JOUR ECLAIRCISSANTE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'MAVIDERMA CREME HYDRATANTE LEGERE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'MDC TONE CORRECTOR TRANEXACT CREAM 50ML' ;
+
+update products set subcategory_id = 1 where name = 'MESOESTETIC AGE ELEMENT BRIGHTENING COMPLEX PLUS 4*5.5ML' ;
+
+update products set subcategory_id = 1 where name = 'MESOESTETIC AGE ELEMENT BRIGHTENING CREAM 50ML' ;
+
+update products set subcategory_id = 1 where name = 'NOREVA SENSIDIANE SOIN AR+ INTENSIF 30ML' ;
+
+update products set subcategory_id = 1 where name = 'DERMINA SENSIBLANC CREME HYDRATANTE ECLAIRCISSANTE 40ML' ;
+
+update products set subcategory_id = 1 where name = 'ALPHASCIENCE SURFACE CR SOIN LISSANT 30ML' ;
+
+update products set subcategory_id = 1 where name = 'ALPHASCIENCE ULTRA DEEP CREME VISAGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'MAVIDERMA CREME REPARATRICE APAISANTE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'MAVIDERMA CREME ULTRA HYDRATANTE 50ML NEW' ;
+
+update products set subcategory_id = 1 where name = 'FIDERMA B12 CREME DE JOUR 50ML' ;
+
+update products set subcategory_id = 1 where name = 'FIDERMA HYDRAFID CREME HYDRATANTE VISAGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'FIDERMA ONIFID HYDROGEL 12ML' ;
+
+update products set subcategory_id = 1 where name = 'FIDERMA SOIN TRAITANT PEAUX MIXTES A GRASSES 50ML' ;
+
+update products set subcategory_id = 1 where name = 'FIDERMA VIT-GO CREME REGULATRICE 50 ML' ;
+
+update products set subcategory_id = 1 where name = 'ACM AZEANE CREME A L’ACIDE AZEALIQUE 15% 30ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE COFFRET ANTI AGE DU RIVAGE CREME 50ML+ REGARD DU RIVAGE 15ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE COFFRET TRESORS DE LA PRESQU’ILE' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE COFFRET TRESORS DU RIVAGE' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE CREME DE LA PRESQU’IL REPULPANTE REDENSIFIANTE POT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE CREME DES DUNES APAISANTE ANTI POLLUTION 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE CREME DES VAGUES HYDRA FONDANTE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE CREME DU RIVAGE ECLAT RAFFERMISSANTE LIFTANTE POT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE FRAICHEUR DES VAGUES GEL SORBET 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE GEL CREME DE L’ARCHIPEL PURIFIANT HYDRO MATIFIANT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'ALGOLOGIE RICHESSE DES VAGUES CREME RICHE HYDRA COMFORT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'APOLOGIE CREME ANTI AGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'APOLOGIE CREME ANTI IMPERFECTIONS 50ML' ;
+
+update products set subcategory_id = 1 where name = 'APOLOGIE CREME DE JOUR 50ML' ;
+
+update products set subcategory_id = 1 where name = 'APOSECHE CREME EMOLLIENTE 250ML' ;
+
+update products set subcategory_id = 1 where name = 'APOSECHE CREME REHYDRATANTE VISAGE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'AUGUSTINUS BADER THE ULTIMATE SOOTHING CREAM 50ML' ;
+update products set subcategory_id = 1 where name = 'BIOMIMETIC ADVANCED TREATMENT ANTIOXIDANT 50ML' ;
+
+update products set subcategory_id = 1 where name = 'BIRETIX ISOREPAIR CREME 50ML' ;
+
+update products set subcategory_id = 1 where name = 'CAMOMILLA BLU CREME HYDRATANTE 200ML' ;
+
+update products set subcategory_id = 1 where name = 'CICASOUAK CREME REPARATRICE ET CICATRISANTE 15ML' ;
+
+update products set subcategory_id = 1 where name = 'CKS MAT CREME ANTI IMPERFECTION 50ML' ;
+
+update products set subcategory_id = 1 where name = 'CKS REPAIR CREME REPARATRICE 50ML' ;
+
+update products set subcategory_id = 1 where name = 'CLARINS BRIGHT PLUS EMULSION HYDRATANTE ANTI TACHES 75ML 80083016' ;
+
+update products set subcategory_id = 1 where name = 'CLINICEUTICA ECZAMID CREME NOURRISSANTE HYDRATANTE CORPS 200ML' ;
+
+update products set subcategory_id = 1 where name = 'DARPHIN STIMULSKIN PLUS CREME BAUME REGENERANTE ABSOLUE 50ML DCJC' ;
+
+update products set subcategory_id = 1 where name = 'DARPHIN STIMULSKIN PLUSCREME REGENERANTE ABSOLUE 50ML DAJY1000' ;
+
+update products set subcategory_id = 1 where name = 'D-BIOTIC BAUME HYDRATANT REGENERANT 150ML' ;
+
+update products set subcategory_id = 1 where name = 'D-BIOTIC CREME HYDRATANTE REGENERANTE 75ML' ;
+
+-- DELAROM LUMINO RESIST CREME ANTIPOLLUTION LUMIERE BLEUE 50ML
+update products set subcategory_id = 1 where name = 'DELAROM LUMINO RESIST CREME ANTIPOLLUTION LUMIERE BLEUE 50ML' ;
+
+-- DELAROM OBJECTIF JEUNESSE CREME LIFTANTE VISAGE 50 ML
+update products set subcategory_id = 1 where name = 'DELAROM OBJECTIF JEUNESSE CREME LIFTANTE VISAGE 50 ML' ;
+
+-- DERMAGOR MES ESSENTIELS CREME HYDRATANTE LEGERE 40ML
+update products set subcategory_id = 1 where name = 'DERMAGOR MES ESSENTIELS CREME HYDRATANTE LEGERE 40ML' ;
+
+-- DERMAGOR MES ESSENTIELS CREME HYDRATANTE RICHE 40ML
+update products set subcategory_id = 1 where name = 'DERMAGOR MES ESSENTIELS CREME HYDRATANTE RICHE 40ML' ;
+
+-- ELLIANCE EMULSION CICATRISANTE 40ML
+update products set subcategory_id = 1 where name = 'ELLIANCE EMULSION CICATRISANTE 40ML' ;
+
+-- ENDOCARE RENEWAL COMFORT CREAM 50ML
+update products set subcategory_id = 1 where name = 'ENDOCARE RENEWAL COMFORT CREAM 50ML' ;
+
+-- EUCERIN HYALURON FILLER +3X EFFECT SOIN DE JOUR 50ML new
+update products set subcategory_id = 1 where name = 'EUCERIN HYALURON FILLER +3X EFFECT SOIN DE JOUR 50ML new' ;
+
+-- FLOXIA CREME REGENERATRICE CONTROLE ROUGEURS 40ML
+update products set subcategory_id = 1 where name = 'FLOXIA CREME REGENERATRICE CONTROLE ROUGEURS 40ML' ;
+
+-- GALDERMA EXCIPIAL REPAIR CREME REGENERATRICE 50ML
+update products set subcategory_id = 1 where name = 'GALDERMA EXCIPIAL REPAIR CREME REGENERATRICE 50ML' ;
+
+-- IALUSET CREME ACIDE HYALURONIQUE 100G
+update products set subcategory_id = 1 where name = 'IALUSET CREME ACIDE HYALURONIQUE 100G' ;
+
+-- JONZAC REACTIVE EMULSION LEGERE 40ML
+update products set subcategory_id = 1 where name = 'JONZAC REACTIVE EMULSION LEGERE 40ML' ;
+
+-- LIERAC HYDRAGENIST RECHARGE LA CREME REHYDRATANTE ECLAT 50ML
+update products set subcategory_id = 1 where name = 'LIERAC HYDRAGENIST RECHARGE LA CREME REHYDRATANTE ECLAT 50ML' ;
+
+-- MEDILEN CREME HYDRATANTE 250ML
+update products set subcategory_id = 1 where name = 'MEDILEN CREME HYDRATANTE 250ML' ;
+
+-- NUHANCIAM CREME HYDRA INTENSE 50ML
+update products set subcategory_id = 1 where name = 'NUHANCIAM CREME HYDRA INTENSE 50ML' ;
+
+-- NUHANCIAM EMULSION ANTI IMPERFECTION 30ML
+update products set subcategory_id = 1 where name = 'NUHANCIAM EMULSION ANTI IMPERFECTION 30ML' ;
+
+-- NUHANCIAM FLUIDE MATIFIANT UNIFIANT 40ML
+update products set subcategory_id = 1 where name = 'NUHANCIAM FLUIDE MATIFIANT UNIFIANT 40ML' ;
+
+-- NUHANCIAM SOIN REPULPANT UNIFIANT 50ML
+update products set subcategory_id = 1 where name = 'NUHANCIAM SOIN REPULPANT UNIFIANT 50ML' ;
+
+-- NUHANCIAM STOP BOUTONS 15ML
+update products set subcategory_id = 1 where name = 'NUHANCIAM STOP BOUTONS 15ML' ;
+
+-- PRO VITAL CREME ECLAT VITAMINE C 20%
+update products set subcategory_id = 1 where name = 'PRO VITAL CREME ECLAT VITAMINE C 20%' ;
+
+-- PRO VITAL CREME RETINOL COLLAGENE HYALURONIC ACID 50ML
+update products set subcategory_id = 1 where name = 'PRO VITAL CREME RETINOL COLLAGENE HYALURONIC ACID 50ML' ;
+
+-- SKINTEA SOIN HYDRATANT ANTI AGE 40ML
+update products set subcategory_id = 1 where name = 'SKINTEA SOIN HYDRATANT ANTI AGE 40ML' ;
+
+-- URIAGE PRURICED GEL APAISANT 100ML NEW
+update products set subcategory_id = 1 where name = 'URIAGE PRURICED GEL APAISANT 100ML NEW' ;
+
+-- MESOESTETIC HYDRA-VITAL LIGHTHEL CREME HYDRATANT 50ML
+update products set subcategory_id = 1 where name = 'MESOESTETIC HYDRA-VITAL LIGHTHEL CREME HYDRATANT 50ML' ;
+
+-- PAYOT PATE GRISE ORIGINALE STOP BOUTON 15ML REF 118747
+update products set subcategory_id = 1 where name = 'PAYOT PATE GRISE ORIGINALE STOP BOUTON 15ML REF 118747' ;
+
+-- SKINTECH IPLASE CREAM 50ML NEW
+update products set subcategory_id = 1 where name = 'SKINTECH IPLASE CREAM 50ML NEW' ;
+
+-- SKINTECH VIT.E ANTI OXYDANT 50ML
+update products set subcategory_id = 1 where name = 'SKINTECH VIT.E ANTI OXYDANT 50ML' ;
+
+-- SOSKIN CICAPLEX FORTE 30ML
+update products set subcategory_id = 1 where name = 'SOSKIN CICAPLEX FORTE 30ML' ;
+
+-- SOSKIN FLUIDE CLARIFIANT SPF25 50ML
+update products set subcategory_id = 1 where name = 'SOSKIN FLUIDE CLARIFIANT SPF25 50ML' ;
+
+-- SOSKIN HYDRAWEAR CREME RICHE 60ML
+update products set subcategory_id = 1 where name = 'SOSKIN HYDRAWEAR CREME RICHE 60ML' ;
+
+-- SOSKIN HYDRAWEAR GEL CREME LEGERE 60ML
+update products set subcategory_id = 1 where name = 'SOSKIN HYDRAWEAR GEL CREME LEGERE 60ML' ;
+
+-- SOSKIN SOIN HYDRATATION ECLAT VITALITE 50ML
+update products set subcategory_id = 1 where name = 'SOSKIN SOIN HYDRATATION ECLAT VITALITE 50ML' ;
+
+-- SOUL SISTERS BOOST DEFENSE QUOTIDIENNE 30ML
+update products set subcategory_id = 1 where name = 'SOUL SISTERS BOOST DEFENSE QUOTIDIENNE 30ML' ;
+
+-- SOUL SISTERS KIT ANTI IMPERFECTION
+update products set subcategory_id = 1 where name = 'SOUL SISTERS KIT ANTI IMPERFECTION' ;
+
+-- KUORA CREME EFFET BOTOX 28 JOURS 50ML
+update products set subcategory_id = 1 where name = 'KUORA CREME EFFET BOTOX 28 JOURS 50ML' ;
+
+-- THALGO COLD CREAM MARINE CREME NUTRI CONFORT 50ML VT22033
+update products set subcategory_id = 1 where name = 'THALGO COLD CREAM MARINE CREME NUTRI CONFORT 50ML VT22033' ;
+
+-- THALGO SILICIUM LIFT CREME RICHE LIFT FERMETE 50ML VT21023
+update products set subcategory_id = 1 where name = 'THALGO SILICIUM LIFT CREME RICHE LIFT FERMETE 50ML VT21023' ;
+
+-- PAYOT PATE GRISE STYLO DUO ANTI IMPERFECTION 2*3ML
+update products set subcategory_id = 1 where name = 'PAYOT PATE GRISE STYLO DUO ANTI IMPERFECTION 2*3ML' ;
+
+-- PAYOT CREME CACHEMIRE APAISANTE N?2 50ML 118448
+update products set subcategory_id = 1 where name = 'PAYOT CREME CACHEMIRE APAISANTE N?2 50ML 118448' ;
+
+-- DERMA CEUTIC REGEN CEUTIC 40ML
+update products set subcategory_id = 1 where name = 'DERMA CEUTIC REGEN CEUTIC 40ML' ;
+
+-- REJUVASKIN RUJUVASIL SILICONE SCAR GEL 30ML
+update products set subcategory_id = 1 where name = 'REJUVASKIN RUJUVASIL SILICONE SCAR GEL 30ML' ;
+
+-- REJUVASKIN SCAR ESTHETIQUE CREME WITH SILICONE 60ML
+update products set subcategory_id = 1 where name = 'REJUVASKIN SCAR ESTHETIQUE CREME WITH SILICONE 60ML' ;
+
+-- REJUVASKIN SKIN RECOVERY CREAM 100ML
+update products set subcategory_id = 1 where name = 'REJUVASKIN SKIN RECOVERY CREAM 100ML' ;
+
+-- NEOSTRATA SKIN ACTIVE RETINOL COMPLEX 30ML
+update products set subcategory_id = 1 where name = 'NEOSTRATA SKIN ACTIVE RETINOL COMPLEX 30ML' ;
+
+-- DERMAGOR MATIDERM CREME ANTI IMPERFECTIONS 40ML
+update products set subcategory_id = 1 where name = 'DERMAGOR MATIDERM CREME ANTI IMPERFECTIONS 40ML' ;
+
+-- LIERAC ARKESKIN RECHARGE LA CREME JOUR MENOPAUSE 50ML
+update products set subcategory_id = 1 where name = 'LIERAC ARKESKIN RECHARGE LA CREME JOUR MENOPAUSE 50ML' ;
+
+-- LIERAC PREMIUM LA CREME SOYEUSE 50ML
+update products set subcategory_id = 1 where name = 'LIERAC PREMIUM LA CREME SOYEUSE 50ML' ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

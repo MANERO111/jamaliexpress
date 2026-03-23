@@ -2,6 +2,7 @@
 import React from 'react';
 import { X, Save } from 'lucide-react';
 import { Product, Category, Subcategory, SubSubcategory, User, Order, UpdateOrderData } from '@/types/admin';
+import { env } from 'process';
 
 interface ModalProps {
   showModal: boolean;
@@ -179,7 +180,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-xl w-full max-h-[95vh] flex flex-col">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[95vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
             {isEditing ? 'Modifier' : 'Ajouter'} {
@@ -197,8 +198,8 @@ const Modal: React.FC<ModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-4 overflow-y-auto">
           {modalType === 'product' && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-gray-700 mb-1">Nom du Produit</label>
                   <input
@@ -233,7 +234,7 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Catégorie</label>
                   <select
@@ -289,7 +290,7 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Prix Orig. (DH)</label>
                   <input
@@ -325,7 +326,7 @@ const Modal: React.FC<ModalProps> = ({
                   />
                 </div>
                 <div>
-                  {/* <label className="block text-xs font-medium text-gray-700 mb-1">Statut</label>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Statut</label>
                   <select
                     name="status"
                     defaultValue={productItem?.status || 'active'}
@@ -334,13 +335,13 @@ const Modal: React.FC<ModalProps> = ({
                     <option value="active">Actif</option>
                     <option value="draft">Brouillon</option>
                     <option value="out_of_stock">Rupture</option>
-                  </select> */}
+                  </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Image du Produit</label>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <input
                     type="file"
                     name="image"
@@ -351,7 +352,7 @@ const Modal: React.FC<ModalProps> = ({
                     <div className="flex items-center space-x-2 text-xs text-gray-600">
                       <span>Actuelle:</span>
                       <a
-                        href={productItem.image_url}
+                        href={`${process.env.NEXT_PUBLIC_BACKEND_IMAGE_URL}${productItem.image_url}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-red-600 hover:text-red-800 underline"
