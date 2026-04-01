@@ -8,10 +8,12 @@ import { useCart } from '@/contexts/CartContext';
 import { navigationItems, NavItem } from '@/constants/navigationData';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { getProductImageUrl } from '@/utils/imageHelper';
 
 const Navbar = () => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -157,6 +159,12 @@ const Navbar = () => {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && searchQuery.trim()) {
+                          router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+                          setIsSearchFocused(false);
+                        }
+                      }}
                     />
                     <Search size={15} className="search-icon" />
                     
@@ -199,7 +207,7 @@ const Navbar = () => {
                             
                             <div className="p-2 border-t border-gray-100 bg-gray-50">
                               <Link 
-                                href={`/products`}
+                                href={`/products?search=${encodeURIComponent(searchQuery)}`}
                                 className="block w-full text-center text-xs py-1.5 text-[#f54f9a] hover:text-[#d4326e] transition-colors"
                                 style={{ fontFamily: "'Jost', sans-serif", fontWeight: 500 }}
                               >

@@ -22,7 +22,14 @@ const ProductsPageContent = () => {
   const categoryParam = searchParams.get('category') || '';
   const subcategoryParam = searchParams.get('subcategory') || '';
   const subsubcategoryParam = searchParams.get('subsubcategory') || '';
+  const searchQueryParam = searchParams.get('search') || '';
   const promotionsParam = searchParams.get('promotions') === 'true';
+
+  useEffect(() => {
+    if (searchQueryParam) {
+      setSearchQuery(searchQueryParam);
+    }
+  }, [searchQueryParam]);
 
   const findCategoryIds = () => {
     if (!categoryParam) return null;
