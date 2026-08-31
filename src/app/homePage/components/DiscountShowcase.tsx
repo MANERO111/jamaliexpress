@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight, Tag, Percent } from 'lucide-react';
 import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
 import { getProductImageUrl } from '@/utils/imageHelper';
-import Image from 'next/image';
 import ProductModal from '@/components/products/ProductModal';
 import { Product as GlobalProduct } from '@/hooks/useProducts';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: number;
@@ -26,146 +26,159 @@ interface Product {
   sub_subcategory_id: number | null;
 }
 
-const CATEGORY_ID = 3;
 const SCROLL_AMOUNT = 300;
 
-import { useWishlist } from '@/hooks/useWishlist';
-
-const MOCK_PRODUCTS: Product[] = [
+// Default mock products for discounts up to 50%
+const MOCK_DISCOUNTED_PRODUCTS: Product[] = [
   {
-    id: 301,
-    name: "RADICO ORGANIC HAIR",
+    id: 901,
+    name: "BELLA AURORA CC CREME TEINTE ANTI TACHES MEDIUM SPF50+ 30ML",
+    brand: "BELLA AURORA",
+    slug: "bella-aurora-cc-creme-teinte-anti-taches-medium-spf50",
+    description: "Soin illuminateur anti-taches avec protection solaire élevée.",
+    original_price: 200.00,
+    discounted_price: 100.00, // 50% discount
+    stock_quantity: 15,
+    image_url: "img/products/8413400020424-300x297.png",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category_id: 1,
+    subcategory_id: null,
+    sub_subcategory_id: null,
+  },
+  {
+    id: 902,
+    name: "RADICO ORGANIC HAIR COLOUR 100G",
     brand: "RADICO",
-    slug: "radico-organic-hair",
-    description: "RADICO ORGANIC HAIR",
+    slug: "radico-organic-hair-colour",
+    description: "Coloration soin 100% bio et naturelle pour des cheveux éclatants.",
     original_price: 180.00,
-    discounted_price: 155.00,
-    stock_quantity: 20,
+    discounted_price: 90.00, // 50% discount
+    stock_quantity: 12,
     image_url: "img/products/8902670020734-300x323.jpg.webp",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
+    category_id: 3,
     subcategory_id: null,
     sub_subcategory_id: null,
   },
   {
-    id: 302,
-    name: "CHRISTOPHE ROBIN SOIN NUANCEUR DE COULEUR ROUX VENITIEN 250ML",
-    brand: "CHRISTOPHE ROBIN",
-    slug: "christophe-robin",
-    description: "CHRISTOPHE ROBIN SOIN NUANCEUR DE COULEUR ROUX VENITIEN 250ML",
-    original_price: 240.00,
-    discounted_price: null,
-    stock_quantity: 15,
-    image_url: "img/products/3760041759141-300x318.jpg", // Fallback to biocol as a generic product image
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
-    subcategory_id: null,
-    sub_subcategory_id: null,
-  },
-  {
-    id: 303,
-    name: "HERBATINT MASCARA RETOUCHE CHEVEUX BLANC COULEUR CHATAIN FONCE 10ML",
-    brand: "HERBATINT",
-    slug: "herbatint-mascara-retouche-cheveux-blanc-couleur-chata",
-    description: "HERBATINT MASCARA RETOUCHE CHEVEUX BLANC COULEUR CHATAIN FONCE 10ML",
-    original_price: 320.00,
-    discounted_price: 280.00,
-    stock_quantity: 10,
-    image_url: "img/products/8016711803641-300x318.png",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
-    subcategory_id: null,
-    sub_subcategory_id: null,
-  },
-  {
-    id: 304,
-    name: "HERBATINT REPAIR CONDITIONER 200ML",
-    brand: "HERBATINT",
-    slug: "herbatint-repair-conditioner-200ml",
-    description: "HERBATINT REPAIR CONDITIONER 200ML",
-    original_price: 160.00,
-    discounted_price: null,
-    stock_quantity: 25,
-    image_url: "img/products/8016744807371-1-300x308.png",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
-    subcategory_id: null,
-    sub_subcategory_id: null,
-  },
-  {
-    id: 305,
-    name: "LILI BABY BROSSE A CHEVEUX",
+    id: 903,
+    name: "LILI BABY BROSSE A CHEVEUX ERGONOMIQUE",
     brand: "LILI-BABY",
-    slug: "lili-baby-brosse-a-cheveux",
-    description: "LILI BABY BROSSE A CHEVEUX",
+    slug: "lili-baby-brosse-a-cheveux-ergonomique",
+    description: "Brosse démêlante ultra-douce pour cuir chevelu sensible.",
     original_price: 450.00,
-    discounted_price: 390.00,
-    stock_quantity: 5,
+    discounted_price: 270.00, // 40% discount
+    stock_quantity: 8,
     image_url: "img/products/LILI-BABY-BROSSE-A-CHEVEUX-300x358.png",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
+    category_id: 3,
     subcategory_id: null,
     sub_subcategory_id: null,
   },
   {
-    id: 306,
-    name: "JANEKE SUPERBRUSH THE ORIGINAL ORANGE FUCHSIA 94SP226 RSA",
-    brand: "JANEKE",
-    slug: "janeke-superbrush-the-original-orange-fuchsia-94sp226-rsa",
-    description: "JANEKE SUPERBRUSH THE ORIGINAL ORANGE FUCHSIA 94SP226 RSA",
-    original_price: 190.00,
-    discounted_price: 165.00,
-    stock_quantity: 15,
-    image_url: "img/products/8006060611820-300x340.jpg",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
-    subcategory_id: null,
-    sub_subcategory_id: null,
-  },
-  {
-    id: 307,
-    name: "JANEKE HAIRBRUSH CURVEY BAG PNEUMATIC PINK SP507 RSA",
-    brand: "JANEKE",
-    slug: "janeke-hairbrush-curvey-bag-pneumatic-pink-sp507-rsa",
-    description: "JANEKE HAIRBRUSH CURVEY BAG PNEUMATIC PINK SP507 RSA",
-    original_price: 130.00,
-    discounted_price: null,
+    id: 904,
+    name: "NUXE PRODIGIEUX HUILE DE DOUCHE PARFUMEE 200ML",
+    brand: "NUXE",
+    slug: "nuxe-prodigieux-huile-de-douche-200ml",
+    description: "Nettoie en douceur, satine la peau et la parfume d'une fragrance mythique.",
+    original_price: 280.00,
+    discounted_price: 168.00, // 40% discount
     stock_quantity: 20,
-    image_url: "img/products/8006060654872-300x259.jpg",
+    image_url: "img/products/3596490006464-300x323.jpg.webp",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
+    category_id: 2,
     subcategory_id: null,
     sub_subcategory_id: null,
   },
   {
-    id: 308,
-    name: "NUGGELA & SULE TOTAL HAIR PROTECTOR 125ML",
-    brand: "NUGGELA & SULE",
-    slug: "nuggela-sule-total-hair-protector-125ml",
-    description: "NUGGELA & SULE TOTAL HAIR PROTECTOR 125ML",
-    original_price: 210.00,
-    discounted_price: 185.00,
-    stock_quantity: 12,
-    image_url: "img/products/8437014761429-300x308.png",
+    id: 905,
+    name: "BABE DEPIGMENT+ CONTROL FLUID 40ML",
+    brand: "BABE",
+    slug: "babe-depigment-control-fluid-40ml",
+    description: "Fluide quotidien unifiant et éclaircissant pour le teint.",
+    original_price: 350.00,
+    discounted_price: 245.00, // 30% discount
+    stock_quantity: 10,
+    image_url: "img/products/BABE-DEPIGMENT-CONTROL-FLUID-40ML-300x300.jpg.webp",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category_id: CATEGORY_ID,
+    category_id: 1,
+    subcategory_id: null,
+    sub_subcategory_id: null,
+  },
+  {
+    id: 906,
+    name: "ALPHANOVA SERUM BOOSTER ANTI RIDES LISSANT+ 30ML",
+    brand: "ALPHANOVA",
+    slug: "alpha-serum-booster-anti-rides-lissanto-30ml",
+    description: "Sérum concentré raffermissant et lissant effet immédiat.",
+    original_price: 260.00,
+    discounted_price: 182.00, // 30% discount
+    stock_quantity: 6,
+    image_url: "img/products/3760075072834-300x313.png.webp",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category_id: 1,
+    subcategory_id: null,
+    sub_subcategory_id: null,
+  },
+  {
+    id: 907,
+    name: "MKL AQUA CREME DOUCHE DERMO NOURISSANTE BIO 1L",
+    brand: "MKL",
+    slug: "mkl-aqua-creme-douche-dermo-nourissante-bio-1l",
+    description: "Crème de douche nourrissante bio pour toute la famille.",
+    original_price: 180.00,
+    discounted_price: 135.00, // 25% discount
+    stock_quantity: 14,
+    image_url: "img/products/MKL-AQUA-CREME-DOUCHE-DERMO-NOURISSANTE-BIO-1L-300x304.jpg.webp",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category_id: 2,
+    subcategory_id: null,
+    sub_subcategory_id: null,
+  },
+  {
+    id: 908,
+    name: "ADDAX SEPTIDOL BODY GEL NETTOYANT 250 ML",
+    brand: "ADDAX",
+    slug: "addax-septidol-body-gel-nettoyant-250ml",
+    description: "Gel nettoyant purifiant et apaisant pour peaux délicates.",
+    original_price: 175.91,
+    discounted_price: 140.00, // ~20% discount
+    stock_quantity: 18,
+    image_url: "img/products/ADDAX-SEPTIDOL-BODY-GEL-NETTOYANT-250ML-300x300.jpeg.webp",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category_id: 1,
+    subcategory_id: null,
+    sub_subcategory_id: null,
+  },
+  {
+    id: 909,
+    name: "ISIS PHARMA SECALIA ATO SOIN LAVANT EFFET BARRIER 400ML",
+    brand: "ISIS PHARMA",
+    slug: "isis-pharma-secalia-ato-soin-lavant-effet-barrier-400ml",
+    description: "Soin lavant relipidant anti-irritations.",
+    original_price: 210.00,
+    discounted_price: 178.50, // 15% discount
+    stock_quantity: 22,
+    image_url: "img/products/3760269771147-300x382.jpg.webp",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category_id: 2,
     subcategory_id: null,
     sub_subcategory_id: null,
   }
 ];
 
-const CapillaireShowcase = () => {
+const DiscountShowcase = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
   const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -184,31 +197,47 @@ const CapillaireShowcase = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
 
-  /* ── Fetch ── */
+  // Helper to calculate discount percentage
+  const getDiscountPercentage = (orig: number, disc?: number | null) => {
+    if (!disc || Number(disc) <= 0 || Number(orig) <= Number(disc)) return 0;
+    return Math.round(((Number(orig) - Number(disc)) / Number(orig)) * 100);
+  };
+
+  /* ── Fetch products and filter for 50% or less discount ── */
   useEffect(() => {
-    const fetchCapillaire = async () => {
+    const fetchDiscountedProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('/api/products', {
-          params: { category_id: CATEGORY_ID, limit: 10 },
-        });
-        const data: Product[] = res.data.data || res.data;
-        if (data && data.length > 0) {
-          setProducts(data.slice(0, 10));
+        const res = await axios.get('/api/products');
+        const allData: Product[] = res.data.data || res.data;
+        
+        if (Array.isArray(allData) && allData.length > 0) {
+          // Filter products that have a discount of 50% or less (discountPercent > 0 && discountPercent <= 50)
+          const filtered = allData.filter((p) => {
+            const pct = getDiscountPercentage(p.original_price, p.discounted_price);
+            return pct > 0 && pct <= 50;
+          });
+
+          if (filtered.length > 0) {
+            setProducts(filtered.slice(0, 12));
+          } else {
+            setProducts(MOCK_DISCOUNTED_PRODUCTS);
+          }
         } else {
-          setProducts(MOCK_PRODUCTS);
+          setProducts(MOCK_DISCOUNTED_PRODUCTS);
         }
-      } catch (err: unknown) {
-        console.error('Fetch error for Capillaire, using mocks:', err);
-        setProducts(MOCK_PRODUCTS);
+      } catch (err) {
+        console.error('Error fetching discounted products, fallback to mocks:', err);
+        setProducts(MOCK_DISCOUNTED_PRODUCTS);
       } finally {
         setLoading(false);
       }
     };
-    fetchCapillaire();
+
+    fetchDiscountedProducts();
   }, []);
 
-  /* ── Scroll tracking ── */
+  /* ── Scroll handling ── */
   const updateScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -233,7 +262,7 @@ const CapillaireShowcase = () => {
     });
   };
 
-  /* ── Drag scroll ── */
+  /* ── Mouse Drag Scroll ── */
   const onMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
@@ -248,7 +277,7 @@ const CapillaireShowcase = () => {
   };
   const stopDrag = () => setIsDragging(false);
 
-  /* ── Cart ── */
+  /* ── Cart Action ── */
   const handleAddToCart = async (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -256,15 +285,11 @@ const CapillaireShowcase = () => {
     
     setAddingToCart((p) => ({ ...p, [product.id]: true }));
     try {
-      const result = await addToCart(product, 1);
-       if (!result.success) {
-        // alert(result.message || 'Erreur lors de l\'ajout au panier');
-      }
+      await addToCart(product, 1);
     } catch (err) {
-      console.error(err);
-      // alert('Erreur lors de l\'ajout au panier');
+      console.error('Error adding product to cart:', err);
     } finally {
-       setAddingToCart((p) => ({ ...p, [product.id]: false }));
+      setAddingToCart((p) => ({ ...p, [product.id]: false }));
     }
   };
 
@@ -275,17 +300,14 @@ const CapillaireShowcase = () => {
     setIsModalOpen(true);
   };
 
-  /* ── Wishlist ── */
+  /* ── Wishlist Action ── */
   const toggleWishlist = (id: number, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlistHook(id);
   };
 
-  const accent = (i: number) => (i % 2 === 0 ? '#f54f9a' : '#41cdcf');
-  const accentRgb = (i: number) => (i % 2 === 0 ? '245,79,154' : '65,205,207');
-
-  /* ── Skeleton ── */
+  /* ── Skeleton loader ── */
   const Skeleton = () => (
     <div className="flex gap-5 px-6 md:px-10 pb-4">
       {Array.from({ length: 4 }).map((_, i) => (
@@ -301,22 +323,25 @@ const CapillaireShowcase = () => {
     </div>
   );
 
-  return (
-    <section className="relative overflow-hidden bg-white py-20">
+  const accent = (i: number) => (i % 2 === 0 ? '#f54f9a' : '#ff7657');
+  const accentRgb = (i: number) => (i % 2 === 0 ? '245,79,154' : '255,118,87');
 
-      {/* ── Background details ── */}
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#fcfbf9] to-white py-20">
+
+      {/* ── Background ambient glows ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Large teal arc top-right */}
+        {/* Large coral/pink radial top-left */}
         <div
-          className="absolute -top-48 -right-48 w-[600px] h-[600px] rounded-full opacity-[0.04]"
-          style={{ background: 'radial-gradient(circle, #41cdcf 0%, transparent 70%)' }}
-        />
-        {/* Pink arc bottom-left */}
-        <div
-          className="absolute -bottom-48 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.04]"
+          className="absolute -top-48 -left-48 w-[650px] h-[650px] rounded-full opacity-[0.05]"
           style={{ background: 'radial-gradient(circle, #f54f9a 0%, transparent 70%)' }}
         />
-        {/* Diagonal stripe pattern */}
+        {/* Warm amber radial bottom-right */}
+        <div
+          className="absolute -bottom-48 -right-32 w-[550px] h-[550px] rounded-full opacity-[0.05]"
+          style={{ background: 'radial-gradient(circle, #ff7657 0%, transparent 70%)' }}
+        />
+        {/* Subtle grid accent */}
         <div
           className="absolute inset-0 opacity-[0.018]"
           style={{
@@ -327,12 +352,12 @@ const CapillaireShowcase = () => {
         />
       </div>
 
-      {/* ── Top decorative border ── */}
+      {/* ── Top decorative line ── */}
       <div
         className="absolute top-0 left-0 right-0 h-[2px]"
         style={{
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(65,205,207,0.4) 30%, rgba(245,79,154,0.4) 70%, transparent 100%)',
+            'linear-gradient(90deg, transparent 0%, rgba(245,79,154,0.4) 35%, rgba(255,118,87,0.4) 65%, transparent 100%)',
         }}
       />
 
@@ -341,55 +366,55 @@ const CapillaireShowcase = () => {
         {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 px-6 md:px-10 mb-12">
 
-          {/* Left: text */}
+          {/* Left: Section Header Text */}
           <div>
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-9 h-px bg-gradient-to-r from-[#41cdcf] to-transparent" />
+              <div className="w-9 h-px bg-gradient-to-r from-[#f54f9a] to-transparent" />
               <span
-                className="text-[10px] font-semibold tracking-[0.38em] uppercase text-[#41cdcf]"
+                className="text-[10px] font-semibold tracking-[0.38em] uppercase text-[#f54f9a] flex items-center gap-1.5"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
-                Beauté & Soin
+                <Tag size={11} className="text-[#f54f9a]" /> Offres Exclusives
               </span>
-              <div className="w-9 h-px bg-gradient-to-l from-[#f54f9a] to-transparent" />
+              <div className="w-9 h-px bg-gradient-to-l from-[#ff7657] to-transparent" />
             </div>
 
             <h2
               className="text-4xl md:text-[52px] font-light text-[#1a1a2e] leading-[1.06]"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Soin{' '}
+              Promotions&nbsp;
               <em
-                className="not-italic"
+                className="not-italic font-normal"
                 style={{
-                  background: 'linear-gradient(110deg, #41cdcf 0%, #2aabb0 40%, #f54f9a 100%)',
+                  background: 'linear-gradient(110deg, #f54f9a 0%, #ff7657 50%, #41cdcf 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                 }}
               >
-                Capillaire
+                Jusqu&apos;à -50%
               </em>
             </h2>
 
             <p
-              className="mt-3 text-[12.5px] font-light tracking-[0.04em] text-[#1a1a2e]/40 leading-[1.8] max-w-sm"
+              className="mt-3 text-[12.5px] font-light tracking-[0.04em] text-[#1a1a2e]/40 leading-[1.8] max-w-md"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {loading
-                ? 'Chargement…'
-                : `${products.length} produits pour sublimer vos cheveux`}
+                ? 'Chargement des meilleures offres…'
+                : `${products.length} soins d'exception à prix réduits jusqu'à 50% de remise`}
             </p>
           </div>
 
-          {/* Right: controls */}
+          {/* Right: Controls & Link */}
           <div className="flex items-center gap-4">
             <Link
-              href="/products?category_id=3"
+              href="/products"
               className="hidden md:flex items-center gap-2 text-[10px] font-medium tracking-[0.2em] uppercase text-[#1a1a2e]/38 hover:text-[#f54f9a] transition-colors duration-300 border-b border-transparent hover:border-[#f54f9a] pb-px"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              Voir tout <ArrowRight size={12} />
+              Toutes les promos <ArrowRight size={12} />
             </Link>
 
             <div className="flex gap-2">
@@ -398,9 +423,9 @@ const CapillaireShowcase = () => {
                 disabled={!canScrollLeft}
                 className="w-10 h-10 flex items-center justify-center border transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
                 style={{
-                  borderColor: canScrollLeft ? 'rgba(65,205,207,0.5)' : 'rgba(26,26,46,0.1)',
-                  color: canScrollLeft ? '#41cdcf' : 'rgba(26,26,46,0.2)',
-                  background: canScrollLeft ? 'rgba(65,205,207,0.06)' : 'transparent',
+                  borderColor: canScrollLeft ? 'rgba(245,79,154,0.5)' : 'rgba(26,26,46,0.1)',
+                  color: canScrollLeft ? '#f54f9a' : 'rgba(26,26,46,0.2)',
+                  background: canScrollLeft ? 'rgba(245,79,154,0.06)' : 'transparent',
                 }}
               >
                 <ChevronLeft size={17} />
@@ -410,9 +435,9 @@ const CapillaireShowcase = () => {
                 disabled={!canScrollRight}
                 className="w-10 h-10 flex items-center justify-center border transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
                 style={{
-                  borderColor: canScrollRight ? 'rgba(245,79,154,0.5)' : 'rgba(26,26,46,0.1)',
-                  color: canScrollRight ? '#f54f9a' : 'rgba(26,26,46,0.2)',
-                  background: canScrollRight ? 'rgba(245,79,154,0.06)' : 'transparent',
+                  borderColor: canScrollRight ? 'rgba(255,118,87,0.5)' : 'rgba(26,26,46,0.1)',
+                  color: canScrollRight ? '#ff7657' : 'rgba(26,26,46,0.2)',
+                  background: canScrollRight ? 'rgba(255,118,87,0.06)' : 'transparent',
                 }}
               >
                 <ChevronRight size={17} />
@@ -421,18 +446,9 @@ const CapillaireShowcase = () => {
           </div>
         </div>
 
-        {/* ── Products track ── */}
+        {/* ── Products Track ── */}
         {loading ? (
           <Skeleton />
-        ) : error ? (
-          <div className="px-10 py-16 text-center">
-            <p
-              className="text-sm tracking-wide"
-              style={{ fontFamily: "'Jost', sans-serif", color: '#f54f9a' }}
-            >
-              {error}
-            </p>
-          </div>
         ) : (
           <>
             <div
@@ -451,17 +467,14 @@ const CapillaireShowcase = () => {
             >
               {products.map((product, index) => {
                 const inWishlist = wishlist.includes(product.id);
-                const inCart = addingToCart[product.id];
                 const outOfStock = product.stock_quantity === 0;
                 const isHovered = hoveredId === product.id;
                 const col = accent(index);
                 const rgb = accentRgb(index);
 
-                // Calculate discount percentage
-                const hasDiscount = product.discounted_price && Number(product.discounted_price) > 0 && Number(product.original_price) > Number(product.discounted_price);
-                const discountPercent = hasDiscount 
-                  ? Math.round(((Number(product.original_price) - Number(product.discounted_price)) / Number(product.original_price)) * 100)
-                  : 0;
+                // Discount percentage calculation
+                const discountPercent = getDiscountPercentage(product.original_price, product.discounted_price);
+                const hasDiscount = discountPercent > 0;
 
                 return (
                   <div
@@ -473,10 +486,10 @@ const CapillaireShowcase = () => {
                     onMouseLeave={() => setHoveredId(null)}
                     draggable={false}
                   >
-                    {/* ── Card ── */}
+                    {/* Card container */}
                     <div className="relative">
 
-                      {/* Ghost number — behind card */}
+                      {/* Ghost background index number */}
                       <span
                         className="absolute -top-6 -left-1 text-[88px] font-bold leading-none pointer-events-none select-none z-0 transition-opacity duration-500"
                         style={{
@@ -487,26 +500,26 @@ const CapillaireShowcase = () => {
                         {String(index + 1).padStart(2, '0')}
                       </span>
 
-                      {/* Card shell */}
+                      {/* Main card shell */}
                       <div
                         className="relative z-10 overflow-hidden transition-all duration-500 bg-[#faf8f5]"
                         style={{
-                          border: `1px solid ${isHovered ? `rgba(${rgb}, 0.3)` : 'rgba(26,26,46,0.07)'}`,
+                          border: `1px solid ${isHovered ? `rgba(${rgb}, 0.35)` : 'rgba(26,26,46,0.07)'}`,
                           boxShadow: isHovered
-                            ? `0 24px 56px rgba(${rgb}, 0.14), 0 4px 16px rgba(0,0,0,0.05)`
+                            ? `0 24px 56px rgba(${rgb}, 0.16), 0 4px 16px rgba(0,0,0,0.05)`
                             : '0 2px 8px rgba(0,0,0,0.04)',
                           transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
                         }}
                       >
-                        {/* Top accent line */}
+                        {/* Accent gradient line at top of card */}
                         <div
                           className="absolute top-0 left-0 right-0 z-20 transition-opacity duration-400"
                           style={{
                             height: '2px',
                             background:
                               index % 2 === 0
-                                ? 'linear-gradient(90deg, #41cdcf, transparent)'
-                                : 'linear-gradient(90deg, #f54f9a, transparent)',
+                                ? 'linear-gradient(90deg, #f54f9a, transparent)'
+                                : 'linear-gradient(90deg, #ff7657, transparent)',
                             opacity: isHovered ? 1 : 0,
                           }}
                         />
@@ -515,7 +528,6 @@ const CapillaireShowcase = () => {
                         <div className="relative h-[280px] overflow-hidden bg-[#f0ede8]">
                           <img
                             src={getProductImageUrl(product.image_url)}
-                            // src={product.image_url}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-700"
                             style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)' }}
@@ -525,7 +537,7 @@ const CapillaireShowcase = () => {
                             }}
                           />
 
-                          {/* Scrim on hover */}
+                          {/* Gradient overlay on hover */}
                           <div
                             className="absolute inset-0 transition-opacity duration-400"
                             style={{
@@ -535,12 +547,14 @@ const CapillaireShowcase = () => {
                             }}
                           />
 
-                          {/* Discount Badge */}
+                          {/* Prominent Discount Badge */}
                           {hasDiscount && (
-                            <div 
-                              className="absolute top-3 left-3 px-2 py-1 z-30 text-[10px] font-bold tracking-wider text-white shadow-sm"
-                              style={{ 
-                                background: '#f54f9a',
+                            <div
+                              className="absolute top-3 left-3 px-2.5 py-1 z-30 text-[11px] font-extrabold tracking-wider text-white shadow-md flex items-center gap-0.5 rounded-xs"
+                              style={{
+                                background: discountPercent >= 40 
+                                  ? 'linear-gradient(135deg, #f54f9a 0%, #ff7657 100%)' 
+                                  : 'linear-gradient(135deg, #ff7657 0%, #f54f9a 100%)',
                                 fontFamily: "'Jost', sans-serif"
                               }}
                             >
@@ -548,7 +562,7 @@ const CapillaireShowcase = () => {
                             </div>
                           )}
 
-                          {/* Wishlist */}
+                          {/* Wishlist Button */}
                           <button
                             onClick={(e) => toggleWishlist(product.id, e)}
                             className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center z-30 transition-all duration-300"
@@ -571,7 +585,7 @@ const CapillaireShowcase = () => {
                             />
                           </button>
 
-                          {/* Out of stock */}
+                          {/* Out of Stock Badge */}
                           {outOfStock && (
                             <div
                               className="absolute top-3 left-3 px-2 py-1 z-30 text-[9px] font-semibold tracking-[0.15em] uppercase"
@@ -586,7 +600,7 @@ const CapillaireShowcase = () => {
                             </div>
                           )}
 
-                          {/* Low stock */}
+                          {/* Low stock tag */}
                           {!outOfStock && product.stock_quantity <= 5 && (
                             <div
                               className="absolute bottom-3 left-3 px-2 py-1 z-30 text-[9px] font-medium tracking-[0.1em] uppercase transition-opacity duration-300"
@@ -603,7 +617,7 @@ const CapillaireShowcase = () => {
                           )}
                         </div>
 
-                        {/* Info */}
+                        {/* Product Info Section */}
                         <div className="p-4 pb-5 flex flex-col">
                           <div className="mb-2">
                             {product.brand ? (
@@ -632,10 +646,11 @@ const CapillaireShowcase = () => {
                             </p>
                           </div>
                           
+                          {/* Price Tag with Discount details */}
                           <div className="flex items-center justify-between mb-4 mt-auto">
                             <div className="flex items-center gap-3">
                               <span
-                                className="font-semibold text-[#1a1a2e]"
+                                className="font-bold text-[#1a1a2e]"
                                 style={{ fontFamily: "'Jost', sans-serif", fontSize: '15px' }}
                               >
                                 {hasDiscount 
@@ -646,14 +661,14 @@ const CapillaireShowcase = () => {
                                 </span>
                               </span>
                               {hasDiscount && (
-                                <span className="text-[11px] text-gray-400 line-through decoration-[#f54f9a]/30">
+                                <span className="text-[11px] text-gray-400 line-through decoration-[#f54f9a]/40">
                                   {Number(product.original_price).toFixed(2)} د.م
                                 </span>
                               )}
                             </div>
                           </div>
 
-                          {/* Cart button */}
+                          {/* Add to Cart button */}
                           <button
                             onClick={(e) => handleAddToCart(product, e)}
                             disabled={outOfStock || addingToCart[product.id]}
@@ -671,9 +686,9 @@ const CapillaireShowcase = () => {
                 );
               })}
 
-              {/* End "voir tout" card */}
+              {/* End Link Card */}
               <Link
-                href="/products?category_id=3"
+                href="/products"
                 className="flex-shrink-0 w-[150px] flex flex-col items-center justify-center gap-4 group"
                 style={{ textDecoration: 'none' }}
               >
@@ -694,12 +709,12 @@ const CapillaireShowcase = () => {
                   className="text-[9.5px] font-medium tracking-[0.24em] uppercase text-[#1a1a2e]/32 group-hover:text-[#f54f9a] transition-colors duration-300 text-center leading-relaxed"
                   style={{ fontFamily: "'Jost', sans-serif" }}
                 >
-                  Voir tous les<br />soins capillaires
+                  Voir toutes les<br />offres -50%
                 </span>
               </Link>
             </div>
 
-            {/* ── Progress bar ── */}
+            {/* ── Scroll Progress Line ── */}
             <div className="px-6 md:px-10 mt-2">
               <div
                 className="relative h-px overflow-hidden"
@@ -709,7 +724,7 @@ const CapillaireShowcase = () => {
                   className="absolute left-0 top-0 h-full transition-all duration-150 ease-out"
                   style={{
                     width: `${Math.max(progressPct, 4)}%`,
-                    background: 'linear-gradient(90deg, #41cdcf, #f54f9a)',
+                    background: 'linear-gradient(90deg, #f54f9a, #ff7657)',
                   }}
                 />
               </div>
@@ -718,23 +733,21 @@ const CapillaireShowcase = () => {
         )}
       </div>
 
-      {/* ── Bottom border ── */}
+      {/* ── Bottom Accent Line ── */}
       <div
         className="absolute bottom-0 left-0 right-0 h-px"
         style={{
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(65,205,207,0.25) 35%, rgba(245,79,154,0.25) 65%, transparent 100%)',
+            'linear-gradient(90deg, transparent 0%, rgba(245,79,154,0.25) 35%, rgba(255,118,87,0.25) 65%, transparent 100%)',
         }}
       />
-      <div className='relative w-full h-[800px] mt-20'>
-        <Image src="/img/ALFA ENERGIE RENAISSANCE.png" alt="Biocol" fill className='object-cover' />
-      </div>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
         .overflow-x-auto::-webkit-scrollbar { display: none; }
       `}</style>
-      
-      {/* Product Modal */}
+
+      {/* Product Quick-View Modal */}
       <ProductModal 
         product={selectedProduct}
         isOpen={isModalOpen}
@@ -744,4 +757,4 @@ const CapillaireShowcase = () => {
   );
 };
 
-export default CapillaireShowcase;
+export default DiscountShowcase;

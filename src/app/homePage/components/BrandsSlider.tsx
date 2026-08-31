@@ -1,17 +1,16 @@
 'use client';
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Link from 'next/link';
+
 /* ────────────────────────────────────────────────────────────
    BRAND DATA
    logo  → replace with your real logo paths when ready
-   Using Clearbit Logo API (reliable, no CORS issues) as
-   placeholder until you upload your own assets.
 ──────────────────────────────────────────────────────────── */
 const brands = [
-  { name: 'La Roche-Posay', logo: 'img/roche_posay.webp' },
+  { name: 'roche', logo: 'img/roche_posay.webp' },
   { name: 'Vichy',          logo: 'img/vichy.webp' },
   { name: 'Bioderma',       logo: 'img/bioderma.webp' },
-  { name: 'Avène',          logo: 'img/avene.webp' },
+  { name: 'Avene',          logo: 'img/avene.webp' },
   { name: 'Neutrogena',     logo: 'img/neutrogena.webp' },
   { name: 'Cetaphil',       logo: 'img/cetaphil.webp' },
   { name: 'Nuxe',           logo: 'img/nuxe.webp' },
@@ -20,9 +19,9 @@ const brands = [
   { name: 'Uriage',         logo: 'img/uriage.webp' },
   { name: 'Caudalie',       logo: 'img/caudalie.webp' },
   { name: 'Filorga',        logo: 'img/filorga.webp' },
-  { name: 'biocol',    logo: 'img/biocol.webp' },
-  { name: 'cerave',        logo: 'img/cerave.webp' },
-  { name: 'Liérac',         logo: 'img/lierac.webp' },
+  { name: 'biocol',         logo: 'img/biocol.webp' },
+  { name: 'cerave',         logo: 'img/cerave.webp' },
+  { name: 'Lierac',         logo: 'img/lierac.webp' },
 ];
 
 /* Triple for seamless infinite loop */
@@ -44,15 +43,17 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
   const col    = isPink ? '#f54f9a' : '#41cdcf';
   const rgb    = isPink ? '245,79,154' : '65,205,207';
 
-  const pillH  = size === 'lg' ? '98px' : '86px';
-  const pillW  = size === 'lg' ? '182px' : '164px';
-  const logoSz = size === 'lg' ? '52px' : '44px';
-  const fontSize= size === 'lg' ? '9.5px' : '8.5px';
+  const isLg = size === 'lg';
 
   return (
-    <div
-      className="flex-shrink-0 mx-3 relative"
-      style={{ width: pillW, height: pillH, cursor: 'default' }}
+    <Link
+      href={`/products?search=${encodeURIComponent(brand.name)}`}
+      className={`flex-shrink-0 mx-1.5 sm:mx-3 relative block ${
+        isLg
+          ? 'w-[140px] h-[78px] sm:w-[164px] sm:h-[88px] md:w-[182px] md:h-[98px]'
+          : 'w-[140px] h-[78px] sm:w-[164px] sm:h-[88px] md:w-[182px] md:h-[98px]'
+      }`}
+      style={{ cursor: 'pointer' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -81,24 +82,22 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
       />
 
       {/* Inner layout: logo + name */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-2 w-full h-full px-3">
-
-        {/* Logo image */}
+      <div className="relative z-10 flex flex-col items-center justify-center gap-1 sm:gap-2 w-full h-full px-2 sm:px-3">
+        {/* Logo image container */}
         <div
-          className="flex items-center justify-center transition-transform duration-400"
+          className={`flex items-center justify-center transition-transform duration-400 w-full ${
+            isLg ? 'h-[38px] sm:h-[44px] md:h-[52px]' : 'h-[32px] sm:h-[38px] md:h-[44px]'
+          }`}
           style={{
-            height: logoSz,
-            width: '100%',
             transform: hovered ? 'scale(1.08)' : 'scale(1)',
           }}
         >
           {imgError ? (
             /* Fallback: styled text logo */
             <span
-              className="text-center leading-tight font-medium"
+              className="text-center leading-tight font-medium text-[11px] sm:text-[13px] md:text-[14px]"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: '14px',
                 color: hovered ? col : 'rgba(26,26,46,0.55)',
                 transition: 'color 0.3s',
                 letterSpacing: '0.04em',
@@ -110,10 +109,10 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
             <img
               src={brand.logo}
               alt={brand.name}
+              className={`max-w-full object-contain ${
+                isLg ? 'max-h-[38px] sm:max-h-[44px] md:max-h-[52px]' : 'max-h-[32px] sm:max-h-[38px] md:max-h-[44px]'
+              }`}
               style={{
-                maxWidth: '100%',
-                maxHeight: logoSz,
-                objectFit: 'contain',
                 filter: hovered
                   ? 'none'
                   : 'grayscale(100%) opacity(0.5)',
@@ -127,10 +126,11 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
 
         {/* Brand name label */}
         <span
-          className="text-center whitespace-nowrap transition-colors duration-300 w-full overflow-hidden text-ellipsis"
+          className={`text-center whitespace-nowrap transition-colors duration-300 w-full overflow-hidden text-ellipsis ${
+            isLg ? 'text-[7.5px] sm:text-[8.5px] md:text-[9.5px]' : 'text-[7px] sm:text-[8px] md:text-[8.5px]'
+          }`}
           style={{
             fontFamily: "'Jost', sans-serif",
-            fontSize: fontSize,
             fontWeight: 500,
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
@@ -143,18 +143,18 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
 
       {/* Subtle corner dot */}
       <div
-        className="absolute bottom-2 right-2 w-1 h-1 rounded-full transition-opacity duration-400"
+        className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 w-1 h-1 rounded-full transition-opacity duration-400"
         style={{ background: col, opacity: hovered ? 0.6 : 0 }}
       />
-    </div>
+    </Link>
   );
 };
 
 /* ── Separator between pills ── */
 const Dot = ({ index }: { index: number }) => (
-  <div className="flex-shrink-0 flex flex-col items-center justify-center gap-1 mx-1 self-stretch">
-    <div className="w-[3px] h-[3px] rounded-full" style={{ background: index % 2 === 0 ? 'rgba(245,79,154,0.25)' : 'rgba(65,205,207,0.25)' }} />
-    <div className="w-[3px] h-[3px] rounded-full" style={{ background: index % 2 === 0 ? 'rgba(245,79,154,0.12)' : 'rgba(65,205,207,0.12)' }} />
+  <div className="flex-shrink-0 flex flex-col items-center justify-center gap-1 mx-0.5 sm:mx-1 self-stretch">
+    <div className="w-[2.5px] h-[2.5px] sm:w-[3px] sm:h-[3px] rounded-full" style={{ background: index % 2 === 0 ? 'rgba(245,79,154,0.25)' : 'rgba(65,205,207,0.25)' }} />
+    <div className="w-[2.5px] h-[2.5px] sm:w-[3px] sm:h-[3px] rounded-full" style={{ background: index % 2 === 0 ? 'rgba(245,79,154,0.12)' : 'rgba(65,205,207,0.12)' }} />
   </div>
 );
 
@@ -163,12 +163,12 @@ const BrandsSlider = () => {
   const [paused, setPaused] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-[#faf8f5] pt-20 pb-20">
+    <section className="relative overflow-hidden bg-[#faf8f5] pt-12 sm:pt-16 md:pt-20 pb-12 sm:pb-16 md:pb-20">
 
       {/* ── Ambient glows ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -left-40 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#f54f9a]/[0.05] blur-[80px]" />
-        <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#41cdcf]/[0.06] blur-[80px]" />
+        <div className="absolute -left-20 sm:-left-40 top-1/2 -translate-y-1/2 w-60 sm:w-96 h-60 sm:h-96 rounded-full bg-[#f54f9a]/[0.05] blur-[60px] sm:blur-[80px]" />
+        <div className="absolute -right-20 sm:-right-40 top-1/2 -translate-y-1/2 w-60 sm:w-96 h-60 sm:h-96 rounded-full bg-[#41cdcf]/[0.06] blur-[60px] sm:blur-[80px]" />
         <div
           className="absolute inset-0 opacity-[0.016]"
           style={{
@@ -179,20 +179,20 @@ const BrandsSlider = () => {
       </div>
 
       {/* ── Header ── */}
-      <div className="relative z-10 flex flex-col items-center mb-14 px-6">
-        <div className="flex items-center gap-4 mb-5">
-          <div className="h-px w-14 bg-gradient-to-r from-transparent to-[#f54f9a]" />
+      <div className="relative z-10 flex flex-col items-center mb-8 sm:mb-12 md:mb-14 px-4 sm:px-6 text-center">
+        <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-5">
+          <div className="h-px w-8 sm:w-14 bg-gradient-to-r from-transparent to-[#f54f9a]" />
           <span
-            className="text-[9.5px] font-semibold tracking-[0.48em] uppercase text-[#1a1a2e]/35"
+            className="text-[8px] sm:text-[9.5px] font-semibold tracking-[0.3em] sm:tracking-[0.48em] uppercase text-[#1a1a2e]/35"
             style={{ fontFamily: "'Jost', sans-serif" }}
           >
             Partenaires officiels
           </span>
-          <div className="h-px w-14 bg-gradient-to-l from-transparent to-[#41cdcf]" />
+          <div className="h-px w-8 sm:w-14 bg-gradient-to-l from-transparent to-[#41cdcf]" />
         </div>
 
         <h2
-          className="text-[34px] md:text-[46px] font-light text-center text-[#1a1a2e] leading-[1.1]"
+          className="text-[26px] sm:text-[34px] md:text-[46px] font-light text-center text-[#1a1a2e] leading-[1.15] sm:leading-[1.1]"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
           Nos marques{' '}
@@ -210,7 +210,7 @@ const BrandsSlider = () => {
         </h2>
 
         <p
-          className="mt-4 text-[12.5px] font-light text-[#1a1a2e]/38 tracking-[0.04em] max-w-[360px] text-center leading-[1.8]"
+          className="mt-2.5 sm:mt-4 text-[11px] sm:text-[12.5px] font-light text-[#1a1a2e]/38 tracking-[0.04em] max-w-[290px] sm:max-w-[360px] text-center leading-[1.6] sm:leading-[1.8]"
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
           Une sélection rigoureuse des meilleures marques de parapharmacie — 100% authentiques et garanties.
@@ -222,20 +222,22 @@ const BrandsSlider = () => {
         className="relative z-10"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
       >
         {/* Left fade mask */}
         <div
-          className="absolute left-0 top-0 bottom-0 w-28 md:w-52 z-20 pointer-events-none"
+          className="absolute left-0 top-0 bottom-0 w-12 sm:w-28 md:w-52 z-20 pointer-events-none"
           style={{ background: 'linear-gradient(to right, #faf8f5 0%, transparent 100%)' }}
         />
         {/* Right fade mask */}
         <div
-          className="absolute right-0 top-0 bottom-0 w-28 md:w-52 z-20 pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-12 sm:w-28 md:w-52 z-20 pointer-events-none"
           style={{ background: 'linear-gradient(to left, #faf8f5 0%, transparent 100%)' }}
         />
 
         {/* ── Row 1 → scroll left ── */}
-        <div className="flex overflow-hidden mb-4">
+        <div className="flex overflow-hidden mb-2.5 sm:mb-4">
           <div
             className="flex items-center"
             style={{
@@ -274,7 +276,7 @@ const BrandsSlider = () => {
       </div>
 
       {/* ── Stats strip ── */}
-      <div className="relative z-10 flex items-center justify-center flex-wrap gap-0 mt-16 px-6">
+      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-0 mt-10 sm:mt-16 px-4 sm:px-6">
         {[
           { value: '15+',    label: 'Marques premium',       color: '#f54f9a' },
           { value: '5 000+', label: 'Références produits',   color: '#1a1a2e' },
@@ -282,17 +284,22 @@ const BrandsSlider = () => {
         ].map(({ value, label, color }, i) => (
           <React.Fragment key={label}>
             {i > 0 && (
-              <div className="w-px h-10 mx-10 bg-gradient-to-b from-transparent via-[rgba(26,26,46,0.12)] to-transparent" />
+              <>
+                {/* Horizontal divider on mobile */}
+                <div className="w-16 h-px bg-gradient-to-r from-transparent via-[rgba(26,26,46,0.12)] to-transparent sm:hidden" />
+                {/* Vertical divider on desktop */}
+                <div className="hidden sm:block w-px h-10 mx-6 md:mx-10 bg-gradient-to-b from-transparent via-[rgba(26,26,46,0.12)] to-transparent" />
+              </>
             )}
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1 sm:gap-1.5">
               <span
-                className="text-[30px] md:text-[36px] font-light leading-none"
+                className="text-[26px] sm:text-[30px] md:text-[36px] font-light leading-none"
                 style={{ fontFamily: "'Cormorant Garamond', serif", color }}
               >
                 {value}
               </span>
               <span
-                className="text-[9px] font-medium tracking-[0.26em] uppercase text-[#1a1a2e]/30"
+                className="text-[8px] sm:text-[9.5px] font-medium tracking-[0.2em] sm:tracking-[0.26em] uppercase text-[#1a1a2e]/30 text-center"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 {label}

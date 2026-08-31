@@ -522,7 +522,7 @@ const VisageShowcase = () => {
                               style={{ transform: isHovered ? 'scale(1.08)' : 'scale(1)' }}
                               draggable={false}
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/placeholder-product.jpg';
+                                (e.target as HTMLImageElement).src = '/img/logo.png';
                               }}
                             />
 

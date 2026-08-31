@@ -2,7 +2,7 @@
 import Axios from 'axios';
 
 const axios = Axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://95.216.199.94',
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000',
   withCredentials: true,
   headers: {
     'Accept': 'application/json',

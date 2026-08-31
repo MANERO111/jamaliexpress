@@ -143,7 +143,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products }) => {
                       className="w-full h-full object-contain p-4 transition-transform duration-700"
                       style={{ transform: isHovered ? 'scale(1.07)' : 'scale(1)' }}
                       draggable={false}
-                      onError={e => { (e.target as HTMLImageElement).src = '/placeholder-product.jpg'; }}
+                      onError={e => { (e.target as HTMLImageElement).src = '/img/logo.png'; }}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

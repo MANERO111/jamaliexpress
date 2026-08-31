@@ -245,7 +245,7 @@ export default function Footer() {
             <div className="mb-6">
               <Link href="/" style={{ textDecoration: 'none' }}>
                 <Image
-                  src="/img/logo2.png"
+                  src="/img/logo.png"
                   alt="Jamali Express"
                   width={160}
                   height={50}

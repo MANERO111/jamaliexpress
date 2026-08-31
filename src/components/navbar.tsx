@@ -188,7 +188,7 @@ const Navbar = () => {
                                     src={getProductImageUrl(product.image_url)} 
                                     alt={product.name}
                                     className="w-full h-full object-cover"
-                                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-product.jpg'; }}
+                                    onError={(e) => { (e.target as HTMLImageElement).src = '/img/logo.png'; }}
                                   />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -228,7 +228,7 @@ const Navbar = () => {
                 {/* Logo - Center */}
                 <div className="flex-shrink-0 flex justify-center flex-1 lg:flex-initial logo-area">
                   <Link href="/" style={{ textDecoration: 'none' }}>
-                    <Image src="/img/logo2.png" alt="Logo" width={200} height={200} />
+                    <Image src="/img/logo.png" alt="Logo" width={200} height={200} />
                   </Link>
                 </div>
 

@@ -116,8 +116,8 @@ const CheckoutPage: React.FC = () => {
     shippingCost = 20;
   }
 
-  const tax = subtotal * 0.20;
-  const total = subtotal + shippingCost + tax;
+  const tax = 0;
+  const total = subtotal + shippingCost;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -658,7 +658,6 @@ const CheckoutPage: React.FC = () => {
                     {[
                       { label: `Sous-total (${cartCount} articles)`, value: `${subtotal.toFixed(2)} د.م` },
                       { label: 'Livraison', value: shippingCost === 0 ? 'Gratuite' : `${shippingCost.toFixed(2)} د.م` },
-                      { label: 'TVA (20%)', value: `${tax.toFixed(2)} د.م` },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex justify-between items-baseline">
                         <span className="text-[11.5px] font-light text-[#1a1a2e]/45"
