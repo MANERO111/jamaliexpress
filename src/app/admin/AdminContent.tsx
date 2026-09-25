@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import axios from '@/lib/axios';
-import { CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, Truck, XCircle, RotateCcw } from 'lucide-react';
 
 // Import separated components
 import Dashboard from './components/dashboard';
@@ -502,9 +502,12 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
     const colors: { [key: string]: string } = {
       active: 'bg-green-100 text-green-800',
       pending: 'bg-yellow-100 text-yellow-800',
+      paid: 'bg-green-100 text-green-800',
       shipped: 'bg-blue-100 text-blue-800',
       delivered: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
+      canceled: 'bg-red-100 text-red-800',
+      retour: 'bg-orange-100 text-orange-800',
       out_of_stock: 'bg-red-100 text-red-800',
       draft: 'bg-gray-100 text-gray-800'
     };
@@ -514,9 +517,12 @@ const AdminContent: React.FC<{ activeTab: string }> = ({ activeTab }) => {
   const getStatusIcon = (status: string) => {
     const icons: { [key: string]: React.ReactNode } = {
       pending: <Clock size={16} />,
+      paid: <CheckCircle size={16} />,
       shipped: <Truck size={16} />,
       delivered: <CheckCircle size={16} />,
-      cancelled: <XCircle size={16} />
+      cancelled: <XCircle size={16} />,
+      canceled: <XCircle size={16} />,
+      retour: <RotateCcw size={16} />
     };
     return icons[status] || <Clock size={16} />;
   };

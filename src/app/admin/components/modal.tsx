@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, Package } from 'lucide-react';
 import { Product, Category, Subcategory, SubSubcategory, User, Order, UpdateOrderData } from '@/types/admin';
+import { getProductImageUrl } from '@/utils/imageHelper';
 import { env } from 'process';
 
 interface ModalProps {
@@ -689,6 +690,7 @@ const Modal: React.FC<ModalProps> = ({
                     <option value="shipped">Expédiée (Shipped)</option>
                     <option value="delivered">Livrée (Delivered)</option>
                     <option value="canceled">Annulée (Canceled)</option>
+                    <option value="retour">Retour</option>
                   </select>
                 </div>
                 <div>
@@ -750,9 +752,60 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-500">
-                <p>Passée le: {orderItem.placed_at ? new Date(orderItem.placed_at).toLocaleString('fr-FR') : 'N/A'}</p>
-                <p>Client ID: {orderItem.user_id}</p>
+              {/* Ordered Products & Quantities in Edit Modal */}
+              <div className="border-t border-gray-100 pt-4 mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <Package size={16} className="text-red-600" />
+                    <span>Articles commandés ({((orderItem.order_items || orderItem.items || [])).length})</span>
+                  </h4>
+                  <span className="text-xs text-gray-500 font-medium">
+                    Total: {orderItem.total_amount} DH
+                  </span>
+                </div>
+
+                <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-48 overflow-y-auto bg-gray-50/50">
+                  {((orderItem.order_items || orderItem.items || [])).map((item, idx) => {
+                    const prodName = item.product?.name || item.name || `Produit #${item.product_id}`;
+                    const prodImg = item.product?.image_url || item.image_url;
+                    const itemPrice = Number(item.price || item.product?.price || 0);
+                    const qty = Number(item.quantity) || 1;
+
+                    return (
+                      <div key={idx} className="p-2.5 flex items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center space-x-2.5 min-w-0">
+                          <img
+                            src={getProductImageUrl(prodImg)}
+                            alt={prodName}
+                            className="w-9 h-9 rounded object-cover bg-white border border-gray-200 flex-shrink-0"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/img/logo.png';
+                            }}
+                          />
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">{prodName}</p>
+                            <p className="text-gray-500">ID #{item.product_id}</p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="font-bold text-gray-900 block">{qty * itemPrice} DH</span>
+                          <span className="text-gray-500">{qty} x {itemPrice} DH</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {((orderItem.order_items || orderItem.items || [])).length === 0 && (
+                    <div className="p-3 text-center text-xs text-gray-400">
+                      Aucun produit associé enregistré
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-500 flex justify-between items-center">
+                <span>Passée le: {orderItem.placed_at ? new Date(orderItem.placed_at).toLocaleString('fr-FR') : (orderItem.created_at ? new Date(orderItem.created_at).toLocaleString('fr-FR') : 'N/A')}</span>
+                <span>Client ID: #{orderItem.user_id}</span>
               </div>
             </div>
           )}

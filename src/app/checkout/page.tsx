@@ -102,15 +102,24 @@ const CheckoutPage: React.FC = () => {
     paymentMethod: 'cash_on_delivery',
     orderNotes: ''
   });
+  const [confirmedOrderId, setConfirmedOrderId] = useState<string | number | null>(null);
 
   const subtotal = getCartTotal();
   
-  // Calculate dynamic shipping cost
+  // Calculate dynamic shipping cost: Free if order is 200 DH or more
   let shippingCost = 35; // Default elsewhere
-  const city = formData.shippingCity.toLowerCase();
-  const address = formData.shippingAddress.toLowerCase();
+  const city = (formData.shippingCity || '').toLowerCase().trim();
+  const address = (formData.shippingAddress || '').toLowerCase().trim();
   
-  if (address.includes('maarif') ||address.includes('marif') || address.includes('bourgogne') || address.includes('bourgone') || address.includes('معارف') || address.includes('بورغون') || city.includes('maarif') || city.includes('bourgogne') || city.includes('معارف') || city.includes('بورغون')) {
+  if (subtotal >= 200) {
+    shippingCost = 0;
+  } else if (
+    address.includes('maarif') || address.includes('marif') || 
+    address.includes('bourgogne') || address.includes('bourgone') || 
+    address.includes('معارف') || address.includes('بورغون') || 
+    city.includes('maarif') || city.includes('bourgogne') || 
+    city.includes('معارف') || city.includes('بورغون')
+  ) {
     shippingCost = 0;
   } else if (city.includes('casablanca') || city === 'casa') {
     shippingCost = 20;
@@ -143,29 +152,65 @@ const CheckoutPage: React.FC = () => {
 
   const submitOrder = async () => {
     try {
-      if (!isAuthenticated) return false;
+      if (!isAuthenticated) {
+        alert('Veuillez vous connecter pour confirmer votre commande.');
+        return false;
+      }
 
       // 1. Create the order in our backend
       const res = await axios.post('/api/orders', {
         shipping_address: {
           full_name: `${formData.firstName} ${formData.lastName}`,
-          phone: formData.phone, address: formData.shippingAddress, city: formData.shippingCity,
+          phone: formData.phone, 
+          address: formData.shippingAddress, 
+          city: formData.shippingCity,
+          postal_code: formData.shippingPostalCode,
         },
         payment_method: formData.paymentMethod,
         order_notes: formData.orderNotes,
-        subtotal, shipping_cost: shippingCost, tax, total,
+        subtotal, 
+        shipping_cost: shippingCost, 
+        tax, 
+        total,
       });
 
       if (res.status !== 200 && res.status !== 201) return false;
 
-      // 2a. Cash on delivery – done
+      const orderId = res.data.order_id || res.data.id || (res.data.order && res.data.order.id) || Date.now();
+      setConfirmedOrderId(orderId);
+
+      // 2. Send confirmation email to client
+      try {
+        await axios.post('/api/send-order-email', {
+          orderId,
+          customerEmail: formData.email,
+          customerName: `${formData.firstName} ${formData.lastName}`,
+          phone: formData.phone,
+          shippingAddress: formData.shippingAddress,
+          shippingCity: formData.shippingCity,
+          shippingPostalCode: formData.shippingPostalCode,
+          paymentMethod: formData.paymentMethod,
+          items: cartItems.map((item: CartItem) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          subtotal,
+          shippingCost,
+          total,
+        });
+      } catch (emailErr) {
+        console.warn('[Checkout] Confirmation email dispatch error:', emailErr);
+      }
+
+      // 3a. Cash on delivery – done
       if (formData.paymentMethod === 'cash_on_delivery') {
-        setTimeout(() => clearCart(), 5000);
+        setTimeout(() => clearCart(), 4000);
         return true;
       }
 
-      // 2b. Card – redirect to CMI
-      const orderId = res.data.order_id;
+      // 3b. Card – redirect to CMI
       const cmiRes = await axios.post('/api/payment/cmi/initiate', { order_id: orderId });
       const { gateway_url, params } = cmiRes.data;
 
@@ -184,7 +229,10 @@ const CheckoutPage: React.FC = () => {
       form.submit();
 
       return 'cmi_redirect'; // sentinel – don't advance step locally
-    } catch { return false; }
+    } catch (err) {
+      console.error('Submit order failed:', err);
+      return false;
+    }
   };
 
   const handleNextStep = () => { if (validateStep(currentStep)) setCurrentStep(p => p + 1); };
@@ -267,7 +315,7 @@ const CheckoutPage: React.FC = () => {
           </h2>
           <p className="text-[13px] font-light text-[#1a1a2e]/42 mb-10 leading-[1.8]"
             style={{ fontFamily: "'Jost', sans-serif" }}>
-            Vous recevrez un email de confirmation sous peu.
+            Un email de confirmation récapitulant votre commande a été envoyé à <strong>{formData.email}</strong>.
           </p>
 
           {/* Summary card */}
@@ -277,14 +325,19 @@ const CheckoutPage: React.FC = () => {
               style={{ background: 'linear-gradient(90deg, #41cdcf, #f54f9a)' }} />
             <div className="p-6 space-y-3">
               {[
+                { icon: Package, label: 'N° Commande', value: confirmedOrderId ? `#${confirmedOrderId}` : 'En cours de validation' },
                 { icon: User, label: 'Nom', value: `${formData.firstName} ${formData.lastName}` },
                 { icon: Mail, label: 'Email', value: formData.email },
                 { icon: MapPin, label: 'Ville', value: formData.shippingCity },
-                { icon: Banknote, label: 'Paiement', value: formData.paymentMethod === 'card' ? 'Carte bancaire' : 'À la livraison' },
+                { 
+                  icon: Banknote, 
+                  label: 'Paiement', 
+                  value: formData.paymentMethod === 'card' ? 'Payé par carte bancaire' : 'Paiement à la livraison (Cash on Delivery)' 
+                },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3">
                   <Icon size={14} style={{ color: 'rgba(26,26,46,0.3)', flexShrink: 0 }} />
-                  <span className="text-[11px] font-medium text-[#1a1a2e]/45 tracking-[0.08em] w-20 flex-shrink-0"
+                  <span className="text-[11px] font-medium text-[#1a1a2e]/45 tracking-[0.08em] w-24 flex-shrink-0"
                     style={{ fontFamily: "'Jost', sans-serif" }}>{label}</span>
                   <span className="text-[12px] font-light text-[#1a1a2e]"
                     style={{ fontFamily: "'Jost', sans-serif" }}>{value}</span>
@@ -655,14 +708,30 @@ const CheckoutPage: React.FC = () => {
 
                   {/* Totals */}
                   <div className="space-y-3 pt-5" style={{ borderTop: '1px solid rgba(26,26,46,0.06)' }}>
+                    {subtotal >= 200 ? (
+                      <div className="py-2 px-3 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200/80 flex items-center gap-2">
+                        <span>🎉</span>
+                        <span>Livraison gratuite offerte (commande supérieure à 200 DH)</span>
+                      </div>
+                    ) : (
+                      <div className="py-2 px-3 text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/80 flex items-center justify-between">
+                        <span>Livraison gratuite dès 200 DH :</span>
+                        <span className="font-semibold">+{(200 - subtotal).toFixed(2)} د.م</span>
+                      </div>
+                    )}
+
                     {[
                       { label: `Sous-total (${cartCount} articles)`, value: `${subtotal.toFixed(2)} د.م` },
-                      { label: 'Livraison', value: shippingCost === 0 ? 'Gratuite' : `${shippingCost.toFixed(2)} د.م` },
-                    ].map(({ label, value }) => (
+                      { 
+                        label: 'Livraison', 
+                        value: shippingCost === 0 ? 'Gratuite 🎉' : `${shippingCost.toFixed(2)} د.م`,
+                        isFree: shippingCost === 0
+                      },
+                    ].map(({ label, value, isFree }) => (
                       <div key={label} className="flex justify-between items-baseline">
                         <span className="text-[11.5px] font-light text-[#1a1a2e]/45"
                           style={{ fontFamily: "'Jost', sans-serif" }}>{label}</span>
-                        <span className="text-[12px] font-medium text-[#1a1a2e]"
+                        <span className={`text-[12px] font-medium ${isFree ? 'text-emerald-600 font-semibold' : 'text-[#1a1a2e]'}`}
                           style={{ fontFamily: "'Jost', sans-serif" }}>{value}</span>
                       </div>
                     ))}

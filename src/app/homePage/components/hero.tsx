@@ -4,11 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 const HERO_IMAGES = [
-  '/img/CLEARE-INSTITUTE-RENAISSANCE.jpg',
-  '/img/MAGICLEAR-RENAISSANCE.jpg',
-  '/img/ALFA ENERGIE RENAISSANCE.png',
-  '/img/ALFA BEAUTE RENAISSANCE.png',
-  '/img/PAUL-DE-VARTENS-RENAISSANCE.jpg'
+  '/img/jamaliexpressbannerssiteweb2.png',
+  '/img/jamaliexpressbannerssiteweb.png',
 ];
 
 export default function HeroSection() {
@@ -97,7 +94,7 @@ export default function HeroSection() {
 
             {/* CTAs */}
             <div className="hero-ctas">
-              <Link href="/products" className="btn-primary">
+              <Link href="/products?search=pack" className="btn-primary">
                 <span>Découvrir la boutique</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />

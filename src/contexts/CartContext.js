@@ -129,15 +129,23 @@ export const CartProvider = ({ children }) => {
 
     setIsLoading(true);
     try {
+      let addedLocally = false;
       if (isAuthenticated && user) {
-        // Add to database
-        await axios.post('/api/cart/add', {
-          product_id: product.id,
-          quantity: quantity
-        });
-        // Reload cart from database
-        await loadCartFromDatabase();
-      } else {
+        try {
+          // Add to database
+          await axios.post('/api/cart/add', {
+            product_id: product.id,
+            quantity: quantity
+          });
+          // Reload cart from database
+          await loadCartFromDatabase();
+        } catch (dbError) {
+          console.warn('Backend cart add failed, saving to local cart instead:', dbError);
+          addedLocally = true;
+        }
+      }
+
+      if (!isAuthenticated || !user || addedLocally) {
         // Add to localStorage
         const currentCart = [...cartItems];
         const existingItemIndex = currentCart.findIndex(item => item.id === product.id);

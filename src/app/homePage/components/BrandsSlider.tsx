@@ -109,14 +109,14 @@ const BrandPill = ({ brand, index, size = 'lg' }: PillProps) => {
             <img
               src={brand.logo}
               alt={brand.name}
-              className={`max-w-full object-contain ${
+              className={`max-w-full object-contain transition-all duration-300 ${
                 isLg ? 'max-h-[38px] sm:max-h-[44px] md:max-h-[52px]' : 'max-h-[32px] sm:max-h-[38px] md:max-h-[44px]'
               }`}
               style={{
-                filter: hovered
-                  ? 'none'
-                  : 'grayscale(100%) opacity(0.5)',
-                transition: 'filter 0.45s ease, transform 0.4s ease',
+                opacity: hovered ? 1 : 0.85,
+                filter: hovered ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.0))' : 'none',
+                transform: hovered ? 'scale(1.05)' : 'scale(1)',
+                transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onError={() => setImgError(true)}
               draggable={false}
@@ -163,7 +163,7 @@ const BrandsSlider = () => {
   const [paused, setPaused] = useState(false);
 
   return (
-    <section className="relative overflow-hidden bg-[#faf8f5] pt-12 sm:pt-16 md:pt-20 pb-12 sm:pb-16 md:pb-20">
+    <section className="relative overflow-hidden bg-[#faf8f5] pt-12 sm:pt-8 md:pt-6 pb-12 sm:pb-16 md:pb-10">
 
       {/* ── Ambient glows ── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -179,7 +179,7 @@ const BrandsSlider = () => {
       </div>
 
       {/* ── Header ── */}
-      <div className="relative z-10 flex flex-col items-center mb-8 sm:mb-12 md:mb-14 px-4 sm:px-6 text-center">
+      <div className="relative z-10 flex flex-col items-center mb-8 sm:mb-8 md:mb-10 px-4 sm:px-6 text-center">
         <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-5">
           <div className="h-px w-8 sm:w-14 bg-gradient-to-r from-transparent to-[#f54f9a]" />
           <span

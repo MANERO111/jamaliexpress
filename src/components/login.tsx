@@ -8,7 +8,7 @@ import axios from '@/lib/axios';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess?: (user: { name: string; [key: string]: unknown }) => void;
+  onLoginSuccess?: (user: { name: string;[key: string]: unknown }) => void;
 }
 
 // Define error response type
@@ -28,6 +28,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(false);
+  const [isForgotMode, setIsForgotMode] = useState<boolean>(false);
+  const [forgotSuccess, setForgotSuccess] = useState<string>('');
 
   const handleLogin = async (): Promise<void> => {
     setLoading(true);
@@ -36,21 +38,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
     try {
       // Get CSRF cookie first
       await axios.get('/sanctum/csrf-cookie');
-      
+
       // Wait a moment to ensure cookie is set
       await new Promise(resolve => setTimeout(resolve, 500));
-    
+
       // Login request - cookies will handle authentication
       await axios.post('/api/login', { email, password });
 
       // Get user data
       const res = await axios.get('/api/user');
-      
+
       // Call the success callback with user data only (no token)
       if (onLoginSuccess) {
         onLoginSuccess(res.data);
       }
-      
+
       // alert(`Welcome back ${res.data.name}!`);
       onClose();
     } catch (err) {
@@ -65,14 +67,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
   const handleRegister = async (): Promise<void> => {
     setLoading(true);
     setError('');
-    
+
     try {
       // Get CSRF cookie first
       await axios.get('/sanctum/csrf-cookie');
-      
+
       // Wait to ensure cookie is properly set in browser
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // Register request - cookies will handle authentication
       await axios.post('/api/register', {
         name,
@@ -80,15 +82,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
         password,
         password_confirmation: password,
       });
-      
+
       // After successful registration, get user data
       const userResponse = await axios.get('/api/user');
-      
+
       // Call the success callback with user data only (no token)
       if (onLoginSuccess) {
         onLoginSuccess(userResponse.data);
       }
-      
+
       // alert('Registration successful!');
       onClose();
     } catch (err) {
@@ -100,9 +102,33 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
     }
   };
 
+  const handleForgotPassword = async (): Promise<void> => {
+    if (!email) {
+      setError('Veuillez saisir votre adresse email.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setForgotSuccess('');
+
+    try {
+      await axios.get('/sanctum/csrf-cookie');
+      await axios.post('/api/forgot-password', { email });
+      setForgotSuccess('Un lien de réinitialisation de mot de passe a été envoyé à votre adresse email.');
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.error('Forgot password error:', err);
+      setError(apiError.response?.data?.message || 'Impossible d’envoyer l’email de réinitialisation.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const switchMode = (): void => {
     setIsRegisterMode(!isRegisterMode);
+    setIsForgotMode(false);
     setError('');
+    setForgotSuccess('');
     setEmail('');
     setPassword('');
     setName('');
@@ -116,10 +142,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
   };
 
   const handleKeyPress = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Enter' && !loading && email && password && (!isRegisterMode || name)) {
-      if (isRegisterMode) {
+    if (e.key === 'Enter' && !loading && email) {
+      if (isForgotMode) {
+        handleForgotPassword();
+      } else if (isRegisterMode && password && name) {
         handleRegister();
-      } else {
+      } else if (!isRegisterMode && password) {
         handleLogin();
       }
     }
@@ -131,7 +159,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
     } else {
       document.body.style.overflow = 'unset';
     }
-    
+
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -144,8 +172,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
       setPassword('');
       setName('');
       setError('');
+      setForgotSuccess('');
       setShowPassword(false);
       setIsRegisterMode(false);
+      setIsForgotMode(false);
     }
   }, [isOpen]);
 
@@ -169,14 +199,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-300"
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-500 border border-gray-100"
         onKeyPress={handleKeyPress}
       >
@@ -189,30 +219,37 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
           >
             <X size={20} />
           </button>
-          
+
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <User size={28} className="text-white" />
             </div>
-            <h2 
+            <h2
               id="modal-title"
               className="text-2xl font-bold text-gray-900 mb-2"
             >
-              {isRegisterMode ? 'Créer un Compte' : 'Connexion'}
+              {isForgotMode
+                ? 'Réinitialiser le mot de passe'
+                : isRegisterMode
+                  ? 'Créer un Compte'
+                  : 'Connexion'}
             </h2>
             <p className="text-gray-600 text-sm">
-              {isRegisterMode ? 'Rejoignez notre communauté Galby' : 'Connectez-vous à votre compte'}
+              {isForgotMode
+                ? 'Entrez votre email pour recevoir un lien de réinitialisation'
+                : isRegisterMode
+                  ? 'Rejoignez notre communauté Galby'
+                  : 'Connectez-vous à votre compte'}
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
             {/* Name Input - Only for Register */}
-            <div className={`relative transition-all duration-500 ${
-              isRegisterMode 
-                ? 'opacity-100 transform translate-y-0 max-h-20' 
+            <div className={`relative transition-all duration-500 ${isRegisterMode && !isForgotMode
+                ? 'opacity-100 transform translate-y-0 max-h-20'
                 : 'opacity-0 transform -translate-y-4 max-h-0 overflow-hidden'
-            }`}>
+              }`}>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User size={16} className="text-red-500" />
               </div>
@@ -242,33 +279,35 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
               />
             </div>
 
-            {/* Password Input */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock size={16} className="text-red-500" />
+            {/* Password Input - Hide for Forgot Mode */}
+            {!isForgotMode && (
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock size={16} className="text-red-500" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mot de passe"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
+                  aria-label="Mot de passe"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200"
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 text-gray-700 placeholder-gray-500"
-                aria-label="Mot de passe"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200"
-                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+            )}
 
             {/* Error Message */}
             {error && (
-              <div 
+              <div
                 className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
                 role="alert"
                 aria-live="polite"
@@ -277,34 +316,76 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
               </div>
             )}
 
+            {/* Success Message */}
+            {forgotSuccess && (
+              <div
+                className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm font-medium"
+                role="alert"
+                aria-live="polite"
+              >
+                {forgotSuccess}
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="button"
-              onClick={isRegisterMode ? handleRegister : handleLogin}
-              disabled={loading || !email || !password || (isRegisterMode && !name)}
+              onClick={isForgotMode ? handleForgotPassword : isRegisterMode ? handleRegister : handleLogin}
+              disabled={loading || !email || (!isForgotMode && !password) || (isRegisterMode && !name)}
               className="w-full bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02] disabled:hover:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>{isRegisterMode ? 'Création du compte...' : 'Connexion...'}</span>
+                  <span>
+                    {isForgotMode
+                      ? 'Envoi en cours...'
+                      : isRegisterMode
+                        ? 'Création du compte...'
+                        : 'Connexion...'}
+                  </span>
                 </>
               ) : (
-                <span>{isRegisterMode ? 'Créer un Compte' : 'Se Connecter'}</span>
+                <span>
+                  {isForgotMode
+                    ? 'Envoyer le lien'
+                    : isRegisterMode
+                      ? 'Créer un Compte'
+                      : 'Se Connecter'}
+                </span>
               )}
             </button>
 
-            {/* Forgot Password - Only for Login */}
-            {!isRegisterMode && (
+            {/* Forgot Password Link / Back to Login */}
+            {isForgotMode ? (
               <div className="text-center">
-                <button 
+                <button
                   type="button"
+                  onClick={() => {
+                    setIsForgotMode(false);
+                    setError('');
+                    setForgotSuccess('');
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors duration-200 hover:underline"
+                >
+                  ← Retour à la connexion
+                </button>
+              </div>
+            ) : !isRegisterMode ? (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotMode(true);
+                    setError('');
+                    setForgotSuccess('');
+                  }}
                   className="text-red-500 hover:text-red-600 text-sm font-medium transition-colors duration-200 hover:underline"
                 >
                   Mot de passe oublié ?
                 </button>
               </div>
-            )}
+            ) : null}
           </form>
         </div>
 
@@ -314,7 +395,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
             {isRegisterMode ? (
               <>
                 Vous avez déjà un compte ?{' '}
-                <button 
+                <button
                   type="button"
                   onClick={switchMode}
                   className="text-red-500 hover:text-red-600 font-semibold transition-colors duration-200 hover:underline"
@@ -325,7 +406,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
             ) : (
               <>
                 Vous n&apos;avez pas de compte ?{' '}
-                <button 
+                <button
                   type="button"
                   onClick={switchMode}
                   className="text-red-500 hover:text-red-600 font-semibold transition-colors duration-200 hover:underline"

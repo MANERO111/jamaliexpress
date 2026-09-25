@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight, Tag, Percent } from 'lucide-react';
+import { ShoppingCart, ChevronLeft, ChevronRight, Heart, ArrowRight, Tag, Percent, Check } from 'lucide-react';
 import Link from 'next/link';
 import axios from '@/lib/axios';
 import { useCart } from '@/contexts/CartContext';
@@ -180,6 +180,7 @@ const DiscountShowcase = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState<{ [key: number]: boolean }>({});
+  const [addedToCart, setAddedToCart] = useState<{ [key: number]: boolean }>({});
   const [selectedProduct, setSelectedProduct] = useState<GlobalProduct | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -264,6 +265,8 @@ const DiscountShowcase = () => {
 
   /* ── Mouse Drag Scroll ── */
   const onMouseDown = (e: React.MouseEvent) => {
+    // If clicking on an interactive element like a button or link, do not start drag
+    if ((e.target as HTMLElement).closest('button, a, input, [role="button"]')) return;
     if (!scrollRef.current) return;
     setIsDragging(true);
     setDragStartX(e.pageX - scrollRef.current.offsetLeft);
@@ -281,11 +284,17 @@ const DiscountShowcase = () => {
   const handleAddToCart = async (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (addingToCart[product.id] || product.stock_quantity === 0) return;
+    if (addingToCart[product.id] || (product.stock_quantity !== undefined && product.stock_quantity === 0)) return;
     
     setAddingToCart((p) => ({ ...p, [product.id]: true }));
     try {
-      await addToCart(product, 1);
+      const res = await addToCart(product, 1);
+      if (res && res.success !== false) {
+        setAddedToCart((p) => ({ ...p, [product.id]: true }));
+        setTimeout(() => {
+          setAddedToCart((p) => ({ ...p, [product.id]: false }));
+        }, 2000);
+      }
     } catch (err) {
       console.error('Error adding product to cart:', err);
     } finally {
@@ -670,14 +679,28 @@ const DiscountShowcase = () => {
 
                           {/* Add to Cart button */}
                           <button
+                            type="button"
                             onClick={(e) => handleAddToCart(product, e)}
                             disabled={outOfStock || addingToCart[product.id]}
-                            className="w-full bg-transparent border-2 border-black hover:bg-black hover:text-white px-4 py-3 text-sm font-medium text-black transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black uppercase tracking-wider mt-4"
+                            className={`w-full border-2 px-4 py-3 text-sm font-medium transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider mt-4 ${
+                              addedToCart[product.id]
+                                ? 'bg-emerald-600 text-white border-emerald-600'
+                                : 'bg-transparent border-black text-black hover:bg-black hover:text-white disabled:hover:bg-transparent disabled:hover:text-black'
+                            }`}
                           >
-                            <ShoppingCart className="w-4 h-4" />
-                            <span>
-                              {addingToCart[product.id] ? 'ajout en cours...' : 'ajouter au panier'}
-                            </span>
+                            {addedToCart[product.id] ? (
+                              <>
+                                <Check className="w-4 h-4 text-white" />
+                                <span>Ajouté au panier !</span>
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingCart className="w-4 h-4" />
+                                <span>
+                                  {addingToCart[product.id] ? 'ajout en cours...' : 'ajouter au panier'}
+                                </span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>

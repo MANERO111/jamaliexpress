@@ -64,8 +64,8 @@ const CartPage: React.FC = () => {
   const freeShippingThreshold = 200;
   const shippingFree = subtotal >= freeShippingThreshold;
   const shipping = shippingFree ? 0 : shippingCost;
-  const tax = subtotal * 0.20;
-  const total = subtotal + shipping + tax;
+  const tax = 0;
+  const total = subtotal + shipping;
   const progressPct = Math.min((subtotal / freeShippingThreshold) * 100, 100);
 
   /* ── Loading skeleton ── */
@@ -413,7 +413,6 @@ const CartPage: React.FC = () => {
                     {[
                       { label: `Sous-total (${cartCount} articles)`, value: `${subtotal.toFixed(2)} د.م` },
                       { label: 'Livraison', value: shipping === 0 ? 'Gratuite 🎉' : `${shipping.toFixed(2)} د.م`, highlight: shipping === 0 },
-                      { label: 'TVA (20%)', value: `${tax.toFixed(2)} د.م` },
                     ].map(({ label, value, highlight }) => (
                       <div key={label} className="flex justify-between items-baseline">
                         <span className="text-[11.5px] font-light text-[#1a1a2e]/42"

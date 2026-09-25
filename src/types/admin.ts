@@ -66,9 +66,15 @@ export interface Order {
     id: number;
     user_id: number;
     total_amount: number | string;
-    status: 'pending' | 'paid' | 'shipped' | 'cancelled' | 'delivered' | string;
+    status: 'pending' | 'paid' | 'shipped' | 'cancelled' | 'canceled' | 'delivered' | 'retour' | string;
     payment_method?: string;
-    shipping_address?: string;
+    shipping_address?: string | {
+        full_name?: string;
+        phone?: string;
+        address?: string;
+        city?: string;
+        postal_code?: string;
+    };
     placed_at?: string;
     created_at: string;
     updated_at: string;
@@ -78,9 +84,11 @@ export interface Order {
         email: string;
         role?: string;
         status?: string;
+        phone?: string;
     };
     items_count?: number;
     order_items?: OrderItem[];
+    items?: OrderItem[];
 }
 
 export interface OrderItem {
@@ -90,6 +98,8 @@ export interface OrderItem {
     quantity: number;
     price: number | string;
     product?: Product;
+    name?: string;
+    image_url?: string;
 }
 
 export interface UpdateOrderData {

@@ -349,25 +349,58 @@ const Dashboard: React.FC<DashboardProps> = ({
             {orders
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
               .slice(0, 5)
-              .map(order => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      #{order.user?.name || `User #${order.user_id}` || 'N/A'}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(order.created_at || order.placed_at || '').toLocaleDateString('fr-FR')}
-                    </p>
+              .map(order => {
+                const items = order.order_items || order.items || [];
+                let customerName = order.user?.name || `Utilisateur #${order.user_id}`;
+                if (order.shipping_address) {
+                  try {
+                    const parsed = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+                    if (parsed?.full_name) customerName = parsed.full_name;
+                  } catch {
+                    // ignore invalid JSON
+                  }
+                }
+
+                return (
+                  <div key={order.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100/70 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-gray-900 text-sm">#{order.id}</span>
+                          <span className="text-sm font-medium text-gray-700 truncate">{customerName}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {new Date(order.created_at || order.placed_at || '').toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-gray-900 text-sm">{Math.round(Number(order.total_amount))} DH</p>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium mt-1 ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          <span className="ml-1">{order.status}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Products and quantities preview */}
+                    {items.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-gray-200/60 flex flex-wrap gap-1.5">
+                        {items.slice(0, 3).map((item, idx) => (
+                          <span key={idx} className="inline-flex items-center text-[11px] bg-white border border-gray-200 px-2 py-0.5 rounded text-gray-700 truncate max-w-[200px]">
+                            <strong className="text-gray-900 mr-1">{item.quantity}x</strong>
+                            <span className="truncate">{item.product?.name || item.name || `Produit #${item.product_id}`}</span>
+                          </span>
+                        ))}
+                        {items.length > 3 && (
+                          <span className="text-[11px] text-gray-400 self-center">
+                            +{items.length - 3} autre(s)
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">{Math.round(Number(order.total_amount))}DH</p>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {getStatusIcon(order.status)}
-                      <span className="ml-1">{order.status}</span>
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             {orders.length === 0 && (
               <div className="text-center py-4 text-gray-500">
                 Aucune commande trouvée

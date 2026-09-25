@@ -57,7 +57,7 @@ const ProductsPageContent = () => {
 
   useEffect(() => {
     if (products.length === 0) return;
-    let result = [...products];
+    let result = products.filter(p => p.active === true || (p as Product & { status?: string }).status === 'active');
     const ids = findCategoryIds();
     if (ids) {
       result = result.filter(p => p.category_id === ids.categoryId);
