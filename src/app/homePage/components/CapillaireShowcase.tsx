@@ -726,8 +726,13 @@ const CapillaireShowcase = () => {
             'linear-gradient(90deg, transparent 0%, rgba(65,205,207,0.25) 35%, rgba(245,79,154,0.25) 65%, transparent 100%)',
         }}
       />
-      <div className='relative w-full h-[800px] mt-20'>
-        <Image src="/img/ALFA ENERGIE RENAISSANCE.png" alt="Biocol" fill className='object-cover' />
+      <div className='flex flex-col md:flex-row w-full mt-20 gap-4 px-4 md:px-10'>
+        <div className='relative flex-1 h-[400px] md:h-[600px]'>
+          <Image src="/img/jamali express - banner solaire - hamza.png" alt="banner" loading="lazy" fill className='object-cover' />
+        </div>
+        <div className='relative flex-1 h-[400px] md:h-[600px]'>
+          <Image src="/img/jamali express - banner pigm -hamza.png" alt="banner" loading="lazy" fill className='object-cover' />
+        </div>
       </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');

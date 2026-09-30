@@ -12,10 +12,10 @@ export default function Home() {
   return (
     <main className="bg-[#F9F6F3] min-h-screen pb-0">
       <Hero />
+      <DiscountShowcase />
       <BrandsSlider />
       <VisageShowcase />
       <CorpsShowcase />
-      <DiscountShowcase />
       <CapillaireShowcase />
       <HygieneShowcase />
       <FAQ />

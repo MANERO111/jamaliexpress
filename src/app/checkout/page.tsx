@@ -505,7 +505,7 @@ const CheckoutPage: React.FC = () => {
                     <div className="space-y-3 mb-0">
                       {[
                         { id: 'cash_on_delivery', name: 'Paiement à la livraison', desc: 'Payez en espèces à la réception', icon: Banknote },
-                        { id: 'card', name: 'Carte bancaire', desc: 'Visa, Mastercard, CMI', icon: CreditCard },
+                        // { id: 'card', name: 'Carte bancaire', desc: 'Visa, Mastercard, CMI', icon: CreditCard },
                       ].map(opt => {
                         const active = formData.paymentMethod === opt.id;
                         const rgb = active ? '245,79,154' : '26,26,46';
